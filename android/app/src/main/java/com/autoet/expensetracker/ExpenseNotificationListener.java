@@ -9,6 +9,9 @@ import android.util.Log;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -18,8 +21,13 @@ public class ExpenseNotificationListener extends NotificationListenerService {
 
     private static final String TAG = "AutoEtNotifications";
 
-    private static final String SMS_PACKAGE =
-        "com.google.android.apps.messaging";
+    // Google Messages, Samsung Messages and the stock Android SMS apps.
+    private static final Set<String> SMS_PACKAGES = new HashSet<>(Arrays.asList(
+            "com.google.android.apps.messaging",
+            "com.samsung.android.messaging",
+            "com.android.mms",
+            "com.android.messaging"
+    ));
 
     private static final ExecutorService databaseExecutor =
             Executors.newSingleThreadExecutor();
@@ -27,26 +35,49 @@ public class ExpenseNotificationListener extends NotificationListenerService {
     private static final Pattern AMOUNT_PATTERN =
             Pattern.compile("(?:Rs\\.?|INR|₹)\\s*([0-9,]+(?:\\.\\d{1,2})?)",
                     Pattern.CASE_INSENSITIVE);
-        @Override
-public void onListenerConnected() {
-    super.onListenerConnected();
-    Log.d(TAG, "Auto Et notification listener CONNECTED");
-}
 
-@Override
-public void onListenerDisconnected() {
-    super.onListenerDisconnected();
-    Log.d(TAG, "Auto Et notification listener DISCONNECTED");
-}
+    private static final String MERCHANT_END =
+            "(?:\\s+(?:on|via|using|from|ref|upi|vpa|txn|a/c|using)\\b|[.,;]|$)";
+
+    // Tried in order; the first one that matches wins.
+    private static final Pattern[] MERCHANT_PATTERNS = {
+            // "Paid to Swiggy", "Paid Rs.250 to Swiggy", "sent ₹40 to Ravi"
+            Pattern.compile(
+                    "(?:paid|sent|transferred)\\s+(?:(?:Rs\\.?|INR|₹)\\s*[0-9,.]+\\s+)?(?:to|at)\\s+(.+?)"
+                            + MERCHANT_END,
+                    Pattern.CASE_INSENSITIVE),
+            // "debited ... to VPA swiggy@ybl", "spent ... at Big Bazaar"
+            Pattern.compile(
+                    "(?:debited|spent|purchase).*?\\b(?:at|to)\\s+(?:vpa\\s+)?(.+?)"
+                            + MERCHANT_END,
+                    Pattern.CASE_INSENSITIVE),
+            // "credited ... from Ravi", "received Rs.500 from Mom"
+            Pattern.compile(
+                    "(?:received|credited|refund).*?\\bfrom\\s+(?:vpa\\s+)?(.+?)"
+                            + MERCHANT_END,
+                    Pattern.CASE_INSENSITIVE)
+    };
+
+    @Override
+    public void onListenerConnected() {
+        super.onListenerConnected();
+        Log.d(TAG, "Auto Et notification listener CONNECTED");
+    }
+
+    @Override
+    public void onListenerDisconnected() {
+        super.onListenerDisconnected();
+        Log.d(TAG, "Auto Et notification listener DISCONNECTED");
+    }
+
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         Log.d(TAG, "Notification callback received");
-        
+
         String packageName = sbn.getPackageName();
         Log.d(TAG, "Notification package: " + packageName);
-        
-        if (!SMS_PACKAGE.equals(packageName)){
-                
+
+        if (!SMS_PACKAGES.contains(packageName)) {
             return;
         }
 
@@ -68,43 +99,52 @@ public void onListenerDisconnected() {
         if (text != null) contentBuilder.append(text).append(" ");
         if (bigText != null) contentBuilder.append(bigText);
 
-        String content = contentBuilder.toString();
+        final String content = contentBuilder.toString();
         String normalized = content.toLowerCase();
 
         // 1. Ignore unsuccessful or incomplete transactions.
-if (normalized.contains("pending")
-        || normalized.contains("processing")
-        || normalized.contains("failed")
-        || normalized.contains("declined")
-        || normalized.contains("unsuccessful")
-        || normalized.contains("initiated")) {
+        if (normalized.contains("pending")
+                || normalized.contains("processing")
+                || normalized.contains("failed")
+                || normalized.contains("declined")
+                || normalized.contains("unsuccessful")
+                || normalized.contains("initiated")) {
 
-    Log.d(TAG, "Incomplete or unsuccessful transaction ignored");
-    return;
-}
+            Log.d(TAG, "Incomplete or unsuccessful transaction ignored");
+            return;
+        }
 
-// 2. Identify incoming payments and refunds.
-boolean isIncome =
-        normalized.contains("credited")
-        || normalized.contains("received")
-        || normalized.contains("refund")
-        || normalized.contains("cashback");
+        // 1b. Ignore one-time-password messages ("OTP sent ...").
+        if (normalized.contains("otp")
+                && !normalized.contains("debited")
+                && !normalized.contains("credited")) {
 
-// 3. Identify outgoing payments.
-boolean isExpense =
-        normalized.contains("debited")
-        || normalized.contains("debit")
-        || normalized.contains("paid")
-        || normalized.contains("sent")
-        || normalized.contains("purchase");
+            Log.d(TAG, "OTP message ignored");
+            return;
+        }
 
-// 4. Ignore ambiguous notifications.
-if (isIncome == isExpense) {
-    Log.d(TAG, "Unrecognized or ambiguous transaction ignored");
-    return;
-}
+        // 2. Identify incoming payments and refunds.
+        boolean isIncome =
+                normalized.contains("credited")
+                        || normalized.contains("received")
+                        || normalized.contains("refund")
+                        || normalized.contains("cashback");
 
-final String detectedType = isIncome ? "INCOME" : "EXPENSE";
+        // 3. Identify outgoing payments.
+        boolean isExpense =
+                normalized.contains("debited")
+                        || normalized.contains("debit")
+                        || normalized.contains("paid")
+                        || normalized.contains("sent")
+                        || normalized.contains("purchase");
+
+        // 4. Ignore ambiguous notifications.
+        if (isIncome == isExpense) {
+            Log.d(TAG, "Unrecognized or ambiguous transaction ignored");
+            return;
+        }
+
+        final String detectedType = isIncome ? "INCOME" : "EXPENSE";
 
         Matcher amountMatcher = AMOUNT_PATTERN.matcher(content);
 
@@ -123,26 +163,13 @@ final String detectedType = isIncome ? "INCOME" : "EXPENSE";
 
             if (amountPaise <= 0) return;
 
-            String merchant = "Unknown";
-
-            Pattern merchantPattern = Pattern.compile(
-                    "paid\\s+to\\s+(.+?)(?:[.,]|$)",
-                    Pattern.CASE_INSENSITIVE
-            );
-
-            Matcher merchantMatcher = merchantPattern.matcher(content);
-
-            if (merchantMatcher.find()) {
-                merchant = merchantMatcher.group(1).trim();
-            }
-
-            final String finalMerchant = merchant;
+            final String finalMerchant = extractMerchant(content);
             final long finalAmount = amountPaise;
             final long transactionTime = sbn.getPostTime();
 
             // Fingerprint this notification to avoid inserting
             // the same notification callback more than once.
-            String dedupeKey = createDedupeKey(
+            final String dedupeKey = createDedupeKey(
                     packageName,
                     sbn.getKey(),
                     transactionTime,
@@ -151,26 +178,28 @@ final String detectedType = isIncome ? "INCOME" : "EXPENSE";
 
             databaseExecutor.execute(() -> {
                 try {
+                    AutoEtDatabase database =
+                            AutoEtDatabase.getInstance(getApplicationContext());
+
                     Transaction transaction = new Transaction();
 
                     transaction.amountPaise = finalAmount;
                     transaction.currency = "INR";
                     transaction.merchant = finalMerchant;
                     transaction.type = detectedType;
-                    transaction.category = "Online Payment";
+                    transaction.category = CategoryRules.categorize(
+                            database,
+                            finalMerchant,
+                            content,
+                            "Online Payment"
+                    );
                     transaction.sourcePackage = packageName;
                     transaction.transactionTime = transactionTime;
                     transaction.dedupeKey = dedupeKey;
 
-                    AutoEtDatabase database =
-                            AutoEtDatabase.getInstance(getApplicationContext());
-
                     long insertedId =
                             database.transactionDao().insert(transaction);
-                    Transaction savedTransaction =
-                            database.transactionDao().findByDedupeKey(dedupeKey);
 
-                    
                     if (insertedId == -1) {
                         Log.d(TAG, "Duplicate notification ignored");
                     } else {
@@ -186,6 +215,29 @@ final String detectedType = isIncome ? "INCOME" : "EXPENSE";
         } catch (Exception e) {
             Log.e(TAG, "Transaction parsing failed", e);
         }
+    }
+
+    private String extractMerchant(String content) {
+        for (Pattern pattern : MERCHANT_PATTERNS) {
+            Matcher matcher = pattern.matcher(content);
+
+            if (matcher.find()) {
+                String candidate = matcher.group(1).trim();
+
+                // Skip empty hits and hits that are really just an amount.
+                if (candidate.length() >= 2
+                        && !AMOUNT_PATTERN.matcher(candidate).find()) {
+
+                    if (candidate.length() > 40) {
+                        candidate = candidate.substring(0, 40).trim();
+                    }
+
+                    return candidate;
+                }
+            }
+        }
+
+        return "Unknown";
     }
 
     private String createDedupeKey(

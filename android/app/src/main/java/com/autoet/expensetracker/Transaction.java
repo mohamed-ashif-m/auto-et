@@ -1,4 +1,3 @@
-
 package com.autoet.expensetracker;
 
 import androidx.room.Entity;
@@ -6,7 +5,6 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
-
 
 @Entity(
         tableName = "transactions",
@@ -29,17 +27,20 @@ public class Transaction {
     // EXPENSE or INCOME
     public String type;
 
-    // Example: com.google.android.apps.nbu.paisa.user
+    // Example: com.google.android.apps.messaging  (or "manual")
     public String sourcePackage;
 
-    // Original notification posting time
+    // Original notification posting time (or the date picked for manual entries)
     public long transactionTime;
 
     // Used to prevent duplicate transactions
     public String dedupeKey;
 
-    // Transaction category
-@NonNull
-@ColumnInfo(defaultValue = "'Other'")
-public String category = "Other";
+    // Transaction category (free text so users can create their own)
+    @NonNull
+    @ColumnInfo(defaultValue = "'Other'")
+    public String category = "Other";
+
+    // Optional user note (added in DB version 3)
+    public String note;
 }

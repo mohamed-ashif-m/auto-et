@@ -1,0 +1,79 @@
+/*
+  Auto Et — neo-brutalist design tokens.
+  Thick ink borders, hard offset shadows, flat saturated colour.
+  The user can change accent, corners and shadow depth in Settings; those
+  choices arrive as data attributes / --accent on <html> (see AppStore.tsx).
+*/
+:root {
+  --ink: #111111;
+  --paper: #fbf4e6;
+  --surface: #fffdf8;
+  --text: #111111;
+  --muted: #5e584c;
+  --line: #111111;
+  --sh: #111111;
+
+  /* The "outer" line/shadow never get re-coloured inside .tone cards. */
+  --oline: var(--line);
+  --osh: var(--sh);
+  --dot: rgba(17, 17, 17, 0.14);
+
+  --accent: #ffd93b;
+  --yellow: #ffd93b;
+  --coral: #ff6b57;
+  --lime: #b8f04b;
+  --violet: #9b8cf5;
+  --sky: #6fd3eb;
+  --pink: #ff8ff0;
+  --orange: #ffa94d;
+
+  --r: 16px;
+  --r-s: calc(var(--r) * 0.7);
+  --bw: 3px;
+  --off: 5px;
+
+  --display: 'Archivo Black', 'sans-serif-black', 'Arial Black', system-ui, sans-serif;
+  --body: 'Space Grotesk Variable', 'Space Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --paper: #17161b;
+  --surface: #25232c;
+  --text: #f7f1e3;
+  --muted: #b3ac9e;
+  --line: #f7f1e3;
+  --sh: #f7f1e3;
+  --dot: rgba(247, 241, 227, 0.1);
+  color-scheme: dark;
+}
+
+:root[data-corners='sharp'] { --r: 4px; }
+:root[data-corners='soft'] { --r: 16px; }
+:root[data-corners='round'] { --r: 28px; }
+
+:root[data-shadow='flat'] { --off: 0px; }
+:root[data-shadow='bold'] { --off: 5px; }
+:root[data-shadow='heavy'] { --off: 9px; }
+
+/* A coloured card re-points the local tokens to ink so everything inside
+   (buttons, chips, inputs) keeps its black borders, in both themes. */
+.tone {
+  --line: #111111;
+  --sh: #111111;
+  --text: #111111;
+  --muted: #3d392f;
+  --surface: #fffdf8;
+  color: #111111;
+}
+.tone.t-yellow { background: var(--yellow); }
+.tone.t-coral { background: var(--coral); }
+.tone.t-lime { background: var(--lime); }
+.tone.t-violet { background: var(--violet); }
+.tone.t-sky { background: var(--sky); }
+.tone.t-pink { background: var(--pink); }
+.tone.t-orange { background: var(--orange); }
