@@ -3,7 +3,8 @@ import type { ChangeEvent, ReactNode } from 'react'
 import { Confirm, Field, Icon, Segmented, Sheet, Stepper, Toggle } from '../components/ui'
 import { messageOf, useStore } from '../store/AppStore'
 import { parseTransactionsCsv } from '../lib/csv'
-import { ACCENTS, COLOR_LIST, EMOJI_CHOICES } from '../lib/defaults'
+import { ACCENTS, COLOR_LIST } from '../lib/defaults'
+import { EmojiPicker } from '../components/EmojiPicker'
 import type { Category, CornerStyle, ShadowStyle, ThemeMode } from '../lib/types'
 
 type Page = 'main' | 'categories' | 'rules'
@@ -356,13 +357,7 @@ function CategorySheet({ category, onClose }: { category?: Category; onClose: ()
         </Field>
 
         <Field label="Icon" group>
-          <div className="emoji-grid">
-            {EMOJI_CHOICES.map((e) => (
-              <button key={e} className={`emoji-pick ${emoji === e ? 'on' : ''}`} onClick={() => setEmoji(e)} aria-label={`Use ${e}`}>
-                {e}
-              </button>
-            ))}
-          </div>
+          <EmojiPicker value={emoji} onChange={setEmoji} />
         </Field>
 
         <Field label="Colour" group>

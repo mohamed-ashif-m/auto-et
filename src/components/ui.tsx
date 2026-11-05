@@ -34,6 +34,8 @@ const PATHS: Record<string, string> = {
   sms: 'M4 5h16v11H9l-5 4V5ZM8 9h8M8 12.5h5',
   sparkle: 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3ZM19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8L19 17Z',
   zap: 'M13 2 4 14h7l-1 8 9-12h-7l1-8Z',
+  calendar: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z',
+  table: 'M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5Zm0 5h18M10 10v11',
 }
 
 export function Icon({ name, size = 22, stroke = 2.8 }: { name: string; size?: number; stroke?: number }) {

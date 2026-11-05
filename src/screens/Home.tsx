@@ -2,9 +2,13 @@ import { useMemo, useState } from 'react'
 import { Empty, Icon, Meter } from '../components/ui'
 import { RankList } from '../components/RankList'
 import { TxnRow } from '../components/TxnRow'
+import { BalanceTableSheet } from '../components/BalanceTableSheet'
+import { CategoryDetailSheet } from '../components/CategoryDetailSheet'
+import { CalendarSheet } from '../components/CalendarSheet'
 import { useStore } from '../store/AppStore'
 import { byCategory, inRange, summarize } from '../lib/analytics'
 import { isCurrent, rangeFor } from '../lib/period'
+import type { Range } from '../lib/period'
 import type { Tab, Transaction } from '../lib/types'
 
 function greeting() {
@@ -31,12 +35,17 @@ export function Home({
     autoTrackOn, openAutoTrackSettings,
   } = useStore()
   const [offset, setOffset] = useState(0)
+  const [customRange, setCustomRange] = useState<Range | null>(null)
+  const [showBalanceTable, setShowBalanceTable] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [showCalendar, setShowCalendar] = useState(false)
 
-  const range = useMemo(() => rangeFor('month', offset, settings.startDay), [offset, settings.startDay])
+  const defaultRange = useMemo(() => rangeFor('month', offset, settings.startDay), [offset, settings.startDay])
+  const range = customRange ?? defaultRange
   const current = isCurrent(range)
   const rows = useMemo(() => inRange(transactions, range), [transactions, range])
   const sum = useMemo(() => summarize(rows), [rows])
-  const top = useMemo(() => byCategory(rows).slice(0, 3), [rows])
+  const top = useMemo(() => byCategory(rows).slice(0, 5), [rows])
 
   const budget = settings.monthlyBudget
   const left = budget - sum.expense
@@ -44,6 +53,24 @@ export function Home({
 
   const heroLabel = budget > 0 ? (left >= 0 ? 'Left to spend' : 'Over budget by') : 'Balance this month'
   const heroValue = budget > 0 ? Math.abs(left) : sum.net
+
+  const handlePrev = () => {
+    if (customRange) {
+      setCustomRange(null)
+      setOffset(-1)
+    } else {
+      setOffset((o) => o - 1)
+    }
+  }
+
+  const handleNext = () => {
+    if (customRange) {
+      setCustomRange(null)
+      setOffset(0)
+    } else {
+      setOffset((o) => o + 1)
+    }
+  }
 
   return (
     <div className="screen">
@@ -57,13 +84,13 @@ export function Home({
         </div>
         <div className="row gap-s">
           <button
-            className="icon-btn white"
-            onClick={() => patchSettings({ hideAmounts: !settings.hideAmounts })}
-            aria-label={settings.hideAmounts ? 'Show amounts' : 'Hide amounts'}
-            aria-pressed={settings.hideAmounts}
-          >
-            <Icon name={settings.hideAmounts ? 'eyeOff' : 'eye'} />
-          </button>
+          className="icon-btn white sm home-cal"
+          onClick={() => setShowCalendar(true)}
+          aria-label="Open Calendar"
+          title="Open Calendar"
+        >
+          <Icon name="calendar" size={18} />
+        </button>
           <button className="icon-btn" onClick={openSettings} aria-label="Settings">
             <Icon name="gear" />
           </button>
@@ -84,17 +111,43 @@ export function Home({
       )}
 
       <div className="month-nav">
-        <button className="icon-btn white sm" onClick={() => setOffset(offset - 1)} aria-label="Previous month">
+        
+        <button className="icon-btn white sm" onClick={handlePrev} aria-label="Previous month">
           <Icon name="left" size={18} />
         </button>
-        <strong>{range.label}</strong>
-        <button className="icon-btn white sm" onClick={() => setOffset(offset + 1)} disabled={offset >= 0} aria-label="Next month">
+        <strong className="clickable-range" onClick={() => setShowCalendar(true)}>
+          {range.label}
+        </strong>
+        <button
+          className="icon-btn white sm"
+          onClick={handleNext}
+          disabled={!customRange && offset >= 0}
+          aria-label="Next month"
+        >
           <Icon name="right" size={18} />
         </button>
       </div>
 
-      <section className="hero tone t-violet">
-        <p className="hero-label">{heroLabel}</p>
+      {/* Clickable Hero Balance Card */}
+      <section
+        className="hero tone t-violet clickable-hero"
+        onClick={() => setShowBalanceTable(true)}
+        role="button"
+        tabIndex={0}
+        aria-label="Click to open financial table and balance breakdown"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setShowBalanceTable(true)
+          }
+        }}
+      >
+        <div className="hero-top-indicator">
+          <p className="hero-label">{heroLabel}</p>
+          <span className="hero-table-chip">
+            <Icon name="table" size={14} /> Financial Table ↗
+          </span>
+        </div>
         <h2 className="hero-num">{fmt(heroValue)}</h2>
         {budget > 0 ? (
           <>
@@ -105,7 +158,13 @@ export function Home({
             </p>
           </>
         ) : (
-          <button className="btn white sm" onClick={() => go('budget')}>
+          <button
+            className="btn white sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              go('budget')
+            }}
+          >
             <Icon name="target" size={18} /> Set a monthly budget
           </button>
         )}
@@ -130,8 +189,10 @@ export function Home({
             <h2>Top spending</h2>
             <button className="btn sm white" onClick={() => go('stats')}>All stats <Icon name="right" size={16} /></button>
           </div>
+          <p className="muted note-hint">Tap any category to see each payment made</p>
           <RankList
             format={fmt}
+            onItemClick={(item) => setSelectedCategory(item.key)}
             items={top.map((s) => {
               const c = catOf(s.key)
               return { key: s.key, label: c.name, emoji: c.emoji, color: c.color, value: s.total }
@@ -169,6 +230,44 @@ export function Home({
           </div>
         )}
       </section>
+
+      {/* Balance Breakdown Table Sheet modal */}
+      {showBalanceTable && (
+        <BalanceTableSheet
+          onClose={() => setShowBalanceTable(false)}
+          onSelectMonth={(year, month) => {
+            const now = new Date()
+            const diffYears = year - now.getFullYear()
+            const diffMonths = month - now.getMonth()
+            setOffset(diffYears * 12 + diffMonths)
+            setCustomRange(null)
+            setShowBalanceTable(false)
+          }}
+        />
+      )}
+
+      {/* Category Detail Sheet modal */}
+      {selectedCategory && (
+        <CategoryDetailSheet
+          categoryName={selectedCategory}
+          range={range}
+          onClose={() => setSelectedCategory(null)}
+          onOpenTxn={onOpen}
+        />
+      )}
+
+      {/* Calendar modal */}
+      {showCalendar && (
+        <CalendarSheet
+          currentRange={range}
+          onSelectRange={(r) => {
+            setCustomRange(r)
+            setShowCalendar(false)
+          }}
+          onClose={() => setShowCalendar(false)}
+          onOpenTxn={onOpen}
+        />
+      )}
     </div>
   )
 }

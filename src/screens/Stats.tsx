@@ -3,13 +3,15 @@ import { BarChart, DonutChart } from '../components/charts'
 import { RankList } from '../components/RankList'
 import { TxnRow } from '../components/TxnRow'
 import { Empty, Icon, Segmented } from '../components/ui'
+import { CategoryDetailSheet } from '../components/CategoryDetailSheet'
+import { CalendarSheet } from '../components/CalendarSheet'
 import { useStore } from '../store/AppStore'
 import {
   biggestExpenses, bucketize, byCategory, byMerchant, inRange, priciestDay, summarize,
 } from '../lib/analytics'
 import { shortDate } from '../lib/format'
 import { bucketsFor, elapsedDays, isCurrent, previousRange, rangeFor } from '../lib/period'
-import type { PeriodKind } from '../lib/period'
+import type { PeriodKind, Range } from '../lib/period'
 import type { Transaction } from '../lib/types'
 
 type TopTab = 'categories' | 'merchants' | 'biggest'
@@ -21,8 +23,12 @@ export function Stats({ onOpen }: { onOpen: (t: Transaction) => void }) {
   const [offset, setOffset] = useState(0)
   const [topTab, setTopTab] = useState<TopTab>('categories')
   const [flow, setFlow] = useState<Flow>('EXPENSE')
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [showCalendar, setShowCalendar] = useState(false)
+  const [customRange, setCustomRange] = useState<Range | null>(null)
 
-  const range = useMemo(() => rangeFor(kind, offset, settings.startDay), [kind, offset, settings.startDay])
+  const defaultRange = useMemo(() => rangeFor(kind, offset, settings.startDay), [kind, offset, settings.startDay])
+  const range = customRange ?? defaultRange
   const rows = useMemo(() => inRange(transactions, range), [transactions, range])
   const sum = useMemo(() => summarize(rows), [rows])
 
@@ -48,6 +54,7 @@ export function Stats({ onOpen }: { onOpen: (t: Transaction) => void }) {
   if (prevSum && prevSum.expense > 0) delta = Math.round(((sum.expense - prevSum.expense) / prevSum.expense) * 100)
 
   const changeKind = (k: PeriodKind) => {
+    setCustomRange(null)
     setKind(k)
     setOffset(0)
   }
@@ -68,7 +75,7 @@ export function Stats({ onOpen }: { onOpen: (t: Transaction) => void }) {
 
       <Segmented<PeriodKind>
         label="Period"
-        value={kind}
+        value={customRange ? (customRange.kind as PeriodKind) : kind}
         onChange={changeKind}
         options={[
           { value: 'week', label: 'Week' },
@@ -80,12 +87,40 @@ export function Stats({ onOpen }: { onOpen: (t: Transaction) => void }) {
 
       {kind !== 'all' && (
         <div className="month-nav">
-          <button className="icon-btn white sm" onClick={() => setOffset(offset - 1)} aria-label="Previous period">
+          <button
+            type="button"
+            className="icon-btn white sm"
+            onClick={() => {
+              if (customRange) setCustomRange(null)
+              setOffset((o) => o - 1)
+            }}
+            aria-label="Previous period"
+          >
             <Icon name="left" size={18} />
           </button>
-          <strong>{range.label}</strong>
-          <button className="icon-btn white sm" onClick={() => setOffset(offset + 1)} disabled={offset >= 0} aria-label="Next period">
+          <strong className="clickable-range" onClick={() => setShowCalendar(true)}>
+            {range.label}
+          </strong>
+          <button
+            type="button"
+            className="icon-btn white sm"
+            onClick={() => {
+              if (customRange) setCustomRange(null)
+              setOffset((o) => o + 1)
+            }}
+            disabled={!customRange && offset >= 0}
+            aria-label="Next period"
+          >
             <Icon name="right" size={18} />
+          </button>
+          <button
+            type="button"
+            className="icon-btn white sm"
+            onClick={() => setShowCalendar(true)}
+            aria-label="Calendar view"
+            title="Open Calendar"
+          >
+            <Icon name="calendar" size={18} />
           </button>
         </div>
       )}
@@ -127,7 +162,10 @@ export function Stats({ onOpen }: { onOpen: (t: Transaction) => void }) {
 
           {cats.length > 0 && (
             <section className="card">
-              <h2>Where it went</h2>
+              <div className="section-head">
+                <h2>Where it went</h2>
+                <span className="muted note-hint">Tap category to see payments</span>
+              </div>
               <DonutChart
                 slices={slices}
                 centerTop="Total spent"
@@ -136,10 +174,18 @@ export function Stats({ onOpen }: { onOpen: (t: Transaction) => void }) {
               />
               <ul className="legend">
                 {slices.slice(0, 8).map((s) => (
-                  <li key={s.key}>
+                  <li
+                    key={s.key}
+                    className="legend-clickable"
+                    onClick={() => setSelectedCategory(s.key)}
+                    role="button"
+                    tabIndex={0}
+                    title={`Click to view each payment in ${s.label}`}
+                  >
                     <span className="swatch" style={{ background: s.color }} />
                     <span className="legend-name">{s.label}</span>
                     <strong>{Math.round((s.value / sum.expense) * 100)}%</strong>
+                    <span className="legend-arrow">›</span>
                   </li>
                 ))}
               </ul>
@@ -160,12 +206,18 @@ export function Stats({ onOpen }: { onOpen: (t: Transaction) => void }) {
             />
             <div className="top-body">
               {topTab === 'categories' && (
-                <RankList
-                  format={fmt}
-                  items={slices.slice(0, 6).map((s) => ({
-                    key: s.key, label: s.label, emoji: s.emoji, color: s.color, value: s.value,
-                  }))}
-                />
+                <>
+                  <p className="muted note-hint" style={{ marginTop: '8px', marginBottom: '4px' }}>
+                    Tap any category to view each payment made in {range.label}
+                  </p>
+                  <RankList
+                    format={fmt}
+                    onItemClick={(item) => setSelectedCategory(item.key)}
+                    items={slices.slice(0, 8).map((s) => ({
+                      key: s.key, label: s.label, emoji: s.emoji, color: s.color, value: s.value,
+                    }))}
+                  />
+                </>
               )}
               {topTab === 'merchants' && (
                 <RankList
@@ -217,6 +269,28 @@ export function Stats({ onOpen }: { onOpen: (t: Transaction) => void }) {
             </p>
           )}
         </>
+      )}
+
+      {/* Category Detail Sheet modal */}
+      {selectedCategory && (
+        <CategoryDetailSheet
+          categoryName={selectedCategory}
+          range={range}
+          onClose={() => setSelectedCategory(null)}
+          onOpenTxn={onOpen}
+        />
+      )}
+
+      {/* Calendar modal */}
+      {showCalendar && (
+        <CalendarSheet
+          currentRange={range}
+          onSelectRange={(r) => {
+            setCustomRange(r)
+            setShowCalendar(false)
+          }}
+          onClose={() => setShowCalendar(false)}
+        />
       )}
     </div>
   )

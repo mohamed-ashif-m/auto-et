@@ -1,6 +1,6 @@
 import { startOfDay } from './format'
 
-export type PeriodKind = 'week' | 'month' | 'year' | 'all'
+export type PeriodKind = 'week' | 'month' | 'year' | 'all' | 'day'
 
 export interface Range {
   kind: PeriodKind
@@ -47,6 +47,19 @@ export function rangeFor(
     return { kind, start: 0, end: Number.MAX_SAFE_INTEGER, label: 'All time' }
   }
 
+  if (kind === 'day') {
+    const today = new Date(startOfDay(now))
+    today.setDate(today.getDate() + offset)
+    const start = today.getTime()
+    const end = start + DAY
+    return {
+      kind,
+      start,
+      end,
+      label: `${today.getDate()} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`,
+    }
+  }
+
   if (kind === 'week') {
     const today = new Date(startOfDay(now))
     const mondayShift = (today.getDay() + 6) % 7
@@ -74,11 +87,26 @@ export function rangeFor(
   return { kind, start: s.getTime(), end: e.getTime(), label }
 }
 
+export function dayRange(timestamp: number): Range {
+  const start = startOfDay(timestamp)
+  const end = start + DAY
+  const d = new Date(start)
+  return {
+    kind: 'day',
+    start,
+    end,
+    label: `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`,
+  }
+}
+
 export const isCurrent = (r: Range, now = Date.now()) => now >= r.start && now < r.end
 
 /** The range right before `r`, for "vs last period" comparisons. */
 export function previousRange(r: Range, startDay: number): Range | null {
   if (r.kind === 'all') return null
+  if (r.kind === 'day') {
+    return rangeFor('day', -1, startDay, new Date(r.start))
+  }
   // Any date inside `r` works as the reference "now"; step back one period.
   return rangeFor(r.kind, -1, startDay, new Date(r.start + DAY))
 }
@@ -98,6 +126,15 @@ export function totalDays(r: Range): number {
 }
 
 export function bucketsFor(r: Range, now = Date.now()): Bucket[] {
+  if (r.kind === 'day') {
+    return [
+      { label: '00-06', start: r.start, end: r.start + 6 * 3600000 },
+      { label: '06-12', start: r.start + 6 * 3600000, end: r.start + 12 * 3600000 },
+      { label: '12-18', start: r.start + 12 * 3600000, end: r.start + 18 * 3600000 },
+      { label: '18-24', start: r.start + 18 * 3600000, end: r.end },
+    ]
+  }
+
   if (r.kind === 'week') {
     return WEEKDAYS.map((label, i) => ({
       label,
