@@ -36,6 +36,8 @@ export interface TransactionPluginInterface {
 
   setValue(options: { key: string; value: string }): Promise<void>
 
+  checkBudgetAlert(): Promise<void>
+
   isNotificationAccessEnabled(): Promise<{ enabled: boolean }>
 
   openNotificationAccessSettings(): Promise<void>

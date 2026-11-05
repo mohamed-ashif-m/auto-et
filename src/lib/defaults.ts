@@ -69,5 +69,6 @@ export const DEFAULT_SETTINGS: Settings = {
   monthlyBudget: 0,
   categoryBudgets: {},
   savingsPct: 20,
+  budgetAlerts: true,
   categories: DEFAULT_CATEGORIES,
 }

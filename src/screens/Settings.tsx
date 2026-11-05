@@ -207,6 +207,9 @@ function Main({ go }: { go: (p: Page) => void }) {
             onPlus={() => patchSettings({ startDay: Math.min(28, settings.startDay + 1) })}
           />
         </Row>
+        <Row label="Low-budget alert" hint="Get a notification when less than 10% of your monthly budget is left.">
+          <Toggle label="Low-budget alert" on={settings.budgetAlerts} onChange={(budgetAlerts) => patchSettings({ budgetAlerts })} />
+        </Row>
         <button className="nav-row" onClick={() => go('categories')}>
           <span className="grow">
             <strong>Categories</strong>

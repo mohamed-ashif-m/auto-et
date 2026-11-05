@@ -162,6 +162,10 @@ export class TransactionPluginWeb extends WebPlugin implements TransactionPlugin
     localStorage.setItem(KV_KEY, JSON.stringify(kv))
   }
 
+  async checkBudgetAlert() {
+    // Native-only: browser dev mode shows the in-app banner instead.
+  }
+
   async isNotificationAccessEnabled() {
     return { enabled: true }
   }

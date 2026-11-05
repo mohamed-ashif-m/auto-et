@@ -39,7 +39,17 @@ export interface Settings {
   monthlyBudget: number // paise, 0 = not set
   categoryBudgets: Record<string, number> // paise per category
   savingsPct: number
+  budgetAlerts: boolean // notify when under 10% of the monthly budget is left
   categories: Category[]
 }
 
 export type Tab = 'home' | 'history' | 'stats' | 'budget'
+
+export interface Loan {
+  id: string
+  lender: string
+  amountPaise: number // 0 = amount not noted
+  dueDate?: number // epoch ms, start of day
+  note?: string
+  paid: boolean
+}

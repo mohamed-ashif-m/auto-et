@@ -14,10 +14,11 @@ import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS, ACCENTS, FALLBACK_CATEGORY, COLOR
 import { money, moneyShort } from '../lib/format'
 import { toCsv } from '../lib/analytics'
 import type { ImportRow } from '../lib/csv'
-import type { Category, Rule, Settings, Transaction } from '../lib/types'
+import type { Category, Loan, Rule, Settings, Transaction } from '../lib/types'
 
 const CACHE_KEY = 'autoet.settings.cache'
 const RULES_CACHE_KEY = 'autoet.rules.cache'
+const LOANS_CACHE_KEY = 'autoet.loans.cache'
 
 interface Toast {
   id: number
@@ -31,6 +32,7 @@ interface Store {
   error: string
   settings: Settings
   rules: Rule[]
+  loans: Loan[]
   toast: Toast | null
   autoTrackOn: boolean | null
 
@@ -44,6 +46,7 @@ interface Store {
   deleteTransaction: (id: number) => Promise<void>
   patchSettings: (patch: Partial<Settings>) => void
   saveRules: (rules: Rule[]) => void
+  saveLoans: (loans: Loan[]) => void
   saveCategory: (category: Category, originalName?: string) => Promise<void>
   deleteCategory: (name: string) => Promise<void>
   clearAll: () => Promise<void>
@@ -86,6 +89,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     mergeSettings(readCache<Settings>(CACHE_KEY)),
   )
   const [rules, setRules] = useState<Rule[]>(() => readCache<Rule[]>(RULES_CACHE_KEY) ?? [])
+  const [loans, setLoans] = useState<Loan[]>(() => readCache<Loan[]>(LOANS_CACHE_KEY) ?? [])
   const [toast, setToast] = useState<Toast | null>(null)
   const [autoTrackOn, setAutoTrackOn] = useState<boolean | null>(null)
   const settingsLoaded = useRef(false)
@@ -145,12 +149,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void (async () => {
       try {
-        const [s, r] = await Promise.all([
+        const [s, r, l] = await Promise.all([
           TransactionPlugin.getValue({ key: 'settings' }),
           TransactionPlugin.getValue({ key: 'rules' }),
+          TransactionPlugin.getValue({ key: 'loans' }),
         ])
         if (s.value) setSettings(mergeSettings(JSON.parse(s.value)))
         if (r.value) setRules(JSON.parse(r.value))
+        if (l.value) setLoans(JSON.parse(l.value))
       } catch (err) {
         console.error('Settings loading failed:', err)
       } finally {
@@ -183,6 +189,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     async (input: TransactionInput) => {
       await TransactionPlugin.addTransaction(input)
       await refresh(true)
+      void TransactionPlugin.checkBudgetAlert().catch(() => {})
     },
     [refresh],
   )
@@ -191,6 +198,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     async (id: number, input: TransactionInput & { transactionTime: number }) => {
       await TransactionPlugin.updateTransaction({ ...input, transactionId: id })
       await refresh(true)
+      void TransactionPlugin.checkBudgetAlert().catch(() => {})
     },
     [refresh],
   )
@@ -206,9 +214,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   /* ---------- settings ---------- */
   const persistSettings = useCallback((next: Settings) => {
     localStorage.setItem(CACHE_KEY, JSON.stringify(next))
-    TransactionPlugin.setValue({ key: 'settings', value: JSON.stringify(next) }).catch((e) =>
-      console.error('Saving settings failed:', e),
-    )
+    TransactionPlugin.setValue({ key: 'settings', value: JSON.stringify(next) })
+      // Budget/cycle/alert changes may cross the 10% line, so re-check natively.
+      .then(() => TransactionPlugin.checkBudgetAlert())
+      .catch((e) => console.error('Saving settings failed:', e))
   }, [])
 
   const patchSettings = useCallback(
@@ -228,6 +237,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     // The Java notification listener reads this key to auto-categorise SMS payments.
     TransactionPlugin.setValue({ key: 'rules', value: JSON.stringify(next) }).catch((e) =>
       console.error('Saving rules failed:', e),
+    )
+  }, [])
+
+  const saveLoans = useCallback((next: Loan[]) => {
+    setLoans(next)
+    localStorage.setItem(LOANS_CACHE_KEY, JSON.stringify(next))
+    TransactionPlugin.setValue({ key: 'loans', value: JSON.stringify(next) }).catch((e) =>
+      console.error('Saving loans failed:', e),
     )
   }, [])
 
@@ -338,6 +355,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       if (categories.length !== settings.categories.length) patchSettings({ categories })
       await refresh(true)
+      void TransactionPlugin.checkBudgetAlert().catch(() => {})
       return { added, duplicates, failed }
     },
     [transactions, settings.categories, patchSettings, refresh],
@@ -367,6 +385,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     error,
     settings,
     rules,
+    loans,
     toast,
     autoTrackOn,
     fmt,
@@ -378,6 +397,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     deleteTransaction,
     patchSettings,
     saveRules,
+    saveLoans,
     saveCategory,
     deleteCategory,
     clearAll,

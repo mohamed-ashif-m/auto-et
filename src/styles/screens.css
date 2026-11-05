@@ -693,3 +693,9 @@ circle.donut-line {
   text-align: right;
   overflow-wrap: anywhere;
 }
+/* ---------- loans ---------- */
+.loan-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

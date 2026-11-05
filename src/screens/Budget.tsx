@@ -3,6 +3,7 @@ import { Empty, Field, Icon, Meter, Sheet, Stepper } from '../components/ui'
 import { messageOf, useStore } from '../store/AppStore'
 import { inRange, summarize, sumExpense } from '../lib/analytics'
 import { rangeFor } from '../lib/period'
+import type { Loan } from '../lib/types'
 
 const STEP = 50000 // ₹500 in paise
 
@@ -11,9 +12,20 @@ type Editing =
   | { kind: 'category'; category?: string }
   | null
 
+type LoanEditing = { loan?: Loan } | null
+
+const DAY = 86400000
+const dateInput = (t?: number) => {
+  if (!t) return ''
+  const d = new Date(t)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 export function Budget() {
-  const { transactions, settings, patchSettings, fmt, catOf } = useStore()
+  const { transactions, settings, patchSettings, fmt, catOf, loans, saveLoans } = useStore()
   const [editing, setEditing] = useState<Editing>(null)
+  const [loanEditing, setLoanEditing] = useState<LoanEditing>(null)
 
   const range = useMemo(() => rangeFor('month', 0, settings.startDay), [settings.startDay])
   const rows = useMemo(() => inRange(transactions, range), [transactions, range])
@@ -22,6 +34,22 @@ export function Budget() {
   const budget = settings.monthlyBudget
   const left = budget - sum.expense
   const daysLeft = Math.max(1, Math.ceil((range.end - Date.now()) / 86400000))
+
+  const lowBudget = budget > 0 && left * 10 < budget
+
+  const openLoans = loans.filter((l) => !l.paid).sort((a, b) => (a.dueDate ?? Infinity) - (b.dueDate ?? Infinity))
+  const paidLoans = loans.filter((l) => l.paid)
+  const owed = openLoans.reduce((n, l) => n + l.amountPaise, 0)
+  const today = new Date().setHours(0, 0, 0, 0)
+  const togglePaid = (id: string) => saveLoans(loans.map((l) => (l.id === id ? { ...l, paid: !l.paid } : l)))
+  const dueText = (l: Loan) => {
+    if (!l.dueDate) return 'No due date'
+    const diff = Math.round((l.dueDate - today) / DAY)
+    const when = new Date(l.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    if (diff < 0) return `Overdue · was due ${when}`
+    if (diff === 0) return 'Due today'
+    return `Due ${when} · in ${diff} ${diff === 1 ? 'day' : 'days'}`
+  }
 
   const budgeted = Object.entries(settings.categoryBudgets).filter(([name]) =>
     settings.categories.some((c) => c.name === name),
@@ -57,6 +85,11 @@ export function Budget() {
             <p className="meter-text">
               <b>{fmt(sum.expense)}</b> spent · {left >= 0 ? <><b>{fmt(left)}</b> left</> : <><b>{fmt(-left)}</b> over</>}
             </p>
+            {lowBudget && (
+              <p className="meter-text" role="alert">
+                ⚠️ {left < 0 ? 'You are over budget this month.' : 'Less than 10% of your budget is left.'}
+              </p>
+            )}
             {left > 0 && (
               <p className="meter-text">
                 Safe to spend <b>{fmt(Math.floor(left / daysLeft / 100) * 100)}</b> a day for the next {daysLeft} {daysLeft === 1 ? 'day' : 'days'}.
@@ -128,10 +161,51 @@ export function Budget() {
         )}
       </section>
 
+      <section className="card">
+        <div className="section-head">
+          <h2>Loans to pay</h2>
+          <button className="btn sm" onClick={() => setLoanEditing({})}>
+            <Icon name="plus" size={16} /> Add
+          </button>
+        </div>
+
+        {loans.length === 0 ? (
+          <p className="muted">Jot down money you owe — who, how much and when — so nothing slips.</p>
+        ) : (
+          <>
+            {openLoans.length > 0 && (
+              <p className="meter-text">
+                {owed > 0 ? <><b>{fmt(owed)}</b> to pay across </> : null}
+                <b>{openLoans.length}</b> {openLoans.length === 1 ? 'loan' : 'loans'}
+              </p>
+            )}
+            <ul className="budget-list">
+              {[...openLoans, ...paidLoans].map((l) => (
+                <li key={l.id} className="loan-row" style={{ opacity: l.paid ? 0.55 : 1 }}>
+                  <button className="icon-btn sm" onClick={() => togglePaid(l.id)} aria-label={l.paid ? 'Mark as unpaid' : 'Mark as paid'}>
+                    <Icon name="check" size={16} />
+                  </button>
+                  <button className="budget-row" onClick={() => setLoanEditing({ loan: l })}>
+                    <span className="grow" style={{ textAlign: 'left' }}>
+                      <span className="rank-head">
+                        <span className="rank-name" style={l.paid ? { textDecoration: 'line-through' } : undefined}>{l.lender}</span>
+                        {l.amountPaise > 0 && <strong>{fmt(l.amountPaise)}</strong>}
+                      </span>
+                      <span className="hint">{l.paid ? 'Paid' : dueText(l)}{l.note ? ` · ${l.note}` : ''}</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </section>
+
       {transactions.length === 0 && (
         <Empty emoji="🎯" title="Budgets need data" body="Add a few transactions and your progress bars will come alive." />
       )}
 
+      {loanEditing && <LoanSheet loan={loanEditing.loan} onClose={() => setLoanEditing(null)} />}
       {editing && <BudgetSheet editing={editing} onClose={() => setEditing(null)} />}
     </div>
   )
@@ -213,6 +287,64 @@ function BudgetSheet({ editing, onClose }: { editing: NonNullable<Editing>; onCl
       <div className="row gap">
         {initial > 0 && <button className="btn coral grow" onClick={remove}>Remove</button>}
         <button className="btn grow" onClick={save} disabled={!overall && free.length === 0}>Save</button>
+      </div>
+    </Sheet>
+  )
+}
+
+function LoanSheet({ loan, onClose }: { loan?: Loan; onClose: () => void }) {
+  const { loans, saveLoans, notify } = useStore()
+  const [lender, setLender] = useState(loan?.lender ?? '')
+  const [amount, setAmount] = useState(loan?.amountPaise ? String(loan.amountPaise / 100) : '')
+  const [due, setDue] = useState(dateInput(loan?.dueDate))
+  const [note, setNote] = useState(loan?.note ?? '')
+  const [error, setError] = useState('')
+
+  const save = () => {
+    const name = lender.trim()
+    if (!name) return setError('Who do you owe?')
+    const value = amount ? Number(amount) : 0
+    if (!Number.isFinite(value) || value < 0) return setError('Enter a valid amount.')
+    const next: Loan = {
+      id: loan?.id ?? `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      lender: name.slice(0, 60),
+      amountPaise: Math.round(value * 100),
+      dueDate: due ? new Date(`${due}T00:00:00`).getTime() : undefined,
+      note: note.trim().slice(0, 200) || undefined,
+      paid: loan?.paid ?? false,
+    }
+    saveLoans(loan ? loans.map((l) => (l.id === loan.id ? next : l)) : [next, ...loans])
+    notify(loan ? 'Loan updated' : 'Loan noted')
+    onClose()
+  }
+
+  const remove = () => {
+    if (!loan) return
+    saveLoans(loans.filter((l) => l.id !== loan.id))
+    notify('Loan removed')
+    onClose()
+  }
+
+  return (
+    <Sheet title={loan ? 'Edit loan' : 'New loan'} onClose={onClose}>
+      <Field label="Who do you owe?">
+        <input autoFocus placeholder="e.g. Ravi, HDFC card, friend" value={lender} onChange={(e) => setLender(e.target.value)} />
+      </Field>
+      <Field label="Amount (₹, optional)">
+        <input inputMode="decimal" placeholder="e.g. 5000" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))} />
+      </Field>
+      <Field label="Due date (optional)">
+        <input type="date" value={due} onChange={(e) => setDue(e.target.value)} />
+      </Field>
+      <Field label="Note (optional)">
+        <input placeholder="e.g. EMI, pay by UPI" value={note} onChange={(e) => setNote(e.target.value)} />
+      </Field>
+
+      {error && <p className="form-error" role="alert">{error}</p>}
+
+      <div className="row gap">
+        {loan && <button className="btn coral grow" onClick={remove}>Delete</button>}
+        <button className="btn grow" onClick={save}>Save</button>
       </div>
     </Sheet>
   )

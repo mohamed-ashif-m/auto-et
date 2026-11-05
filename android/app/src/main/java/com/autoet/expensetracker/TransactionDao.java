@@ -25,6 +25,10 @@ public interface TransactionDao {
     @Query("SELECT SUM(amountPaise) FROM transactions WHERE type = 'INCOME'")
     Long getTotalIncome();
 
+    @Query("SELECT SUM(amountPaise) FROM transactions WHERE type = 'EXPENSE' "
+            + "AND transactionTime >= :start AND transactionTime < :end")
+    Long getExpensesBetween(long start, long end);
+
     @Query("SELECT * FROM transactions WHERE dedupeKey = :key LIMIT 1")
     Transaction findByDedupeKey(String key);
 

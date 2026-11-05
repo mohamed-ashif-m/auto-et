@@ -483,6 +483,19 @@ public class TransactionPlugin extends Plugin {
         });
     }
 
+    // Re-evaluates the low-budget alert (called after manual edits or budget changes).
+    @PluginMethod
+    public void checkBudgetAlert(PluginCall call) {
+        databaseExecutor.execute(() -> {
+            try {
+                BudgetAlerts.check(getContext(), AutoEtDatabase.getInstance(getContext()));
+                call.resolve();
+            } catch (Exception e) {
+                call.reject("Budget check failed", e);
+            }
+        });
+    }
+
     // ------------------------------------------------------------------
     // SMS auto-tracking status
     // ------------------------------------------------------------------

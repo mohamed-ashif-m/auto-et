@@ -205,6 +205,9 @@ public class ExpenseNotificationListener extends NotificationListenerService {
                     } else {
                         Log.d(TAG, "Transaction saved successfully");
                         Log.d(TAG, "Transaction ID: " + insertedId);
+                        if ("EXPENSE".equals(detectedType)) {
+                            BudgetAlerts.check(getApplicationContext(), database);
+                        }
                     }
 
                 } catch (Exception e) {
