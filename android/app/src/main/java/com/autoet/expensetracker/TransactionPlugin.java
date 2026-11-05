@@ -19,6 +19,8 @@ public class TransactionPlugin extends Plugin {
     private static final ExecutorService databaseExecutor =
             Executors.newSingleThreadExecutor();
 
+    private static final int MAX_CATEGORY_NAME_LENGTH = 40;
+
     @PluginMethod
     public void addTransaction(PluginCall call) {
 
@@ -51,38 +53,21 @@ public class TransactionPlugin extends Plugin {
             category = "Other";
         }
 
-        String[] allowedCategories = {
-                "Online Payment",
-                "Cash",
-                "Food & Dining",
-                "Transport",
-                "Shopping",
-                "Bills & Utilities",
-                "Healthcare",
-                "Entertainment",
-                "Other"
-        };
-
-        boolean validCategory = false;
-
-        for (String allowed : allowedCategories) {
-            if (allowed.equals(category)) {
-                validCategory = true;
-                break;
-            }
-        }
-
-        if (!validCategory) {
-            call.reject("Invalid category");
-            return;
-        }
-
-        final String selectedCategory = category;
+        final String selectedCategory = category.trim();
 
         databaseExecutor.execute(() -> {
             try {
                 AutoEtDatabase database =
                         AutoEtDatabase.getInstance(getContext());
+
+                Category categoryRecord =
+                        database.categoryDao()
+                                .findByNameIgnoreCase(selectedCategory);
+
+                if (categoryRecord == null) {
+                    call.reject("Invalid category");
+                    return;
+                }
 
                 Transaction transaction = new Transaction();
 
@@ -90,7 +75,7 @@ public class TransactionPlugin extends Plugin {
                 transaction.currency = "INR";
                 transaction.merchant = merchant.trim();
                 transaction.type = type;
-                transaction.category = selectedCategory;
+                transaction.category = categoryRecord.name;
                 transaction.sourcePackage = "manual";
                 transaction.transactionTime =
                         System.currentTimeMillis();
@@ -107,7 +92,7 @@ public class TransactionPlugin extends Plugin {
 
                 JSObject response = new JSObject();
                 response.put("id", insertedId);
-                response.put("category", selectedCategory);
+                response.put("category", categoryRecord.name);
 
                 call.resolve(response);
 
@@ -164,79 +149,249 @@ public class TransactionPlugin extends Plugin {
             }
         });
     }
-    
-@PluginMethod
-public void updateCategory(PluginCall call) {
 
-    Integer transactionId = call.getInt("transactionId");
-    String category = call.getString("category");
+    @PluginMethod
+    public void updateCategory(PluginCall call) {
 
-    if (transactionId == null || transactionId <= 0) {
-        call.reject("Invalid transaction ID");
-        return;
-    }
+        Integer transactionId = call.getInt("transactionId");
+        String category = call.getString("category");
 
-    String[] allowedCategories = {
-            "Online Payment",
-            "Cash",
-            "Food & Dining",
-            "Transport",
-            "Shopping",
-            "Bills & Utilities",
-            "Healthcare",
-            "Entertainment",
-            "Other"
-    };
-
-    boolean validCategory = false;
-
-    if (category != null) {
-        for (String allowed : allowedCategories) {
-            if (allowed.equals(category)) {
-                validCategory = true;
-                break;
-            }
+        if (transactionId == null || transactionId <= 0) {
+            call.reject("Invalid transaction ID");
+            return;
         }
-    }
 
-    if (!validCategory) {
-        call.reject("Invalid category");
-        return;
-    }
+        if (category == null || category.trim().isEmpty()) {
+            call.reject("Invalid category");
+            return;
+        }
 
-    databaseExecutor.execute(() -> {
-        try {
-            AutoEtDatabase database =
-                    AutoEtDatabase.getInstance(getContext());
+        final String selectedCategory = category.trim();
 
-            int updatedRows =
-                    database.transactionDao().updateCategory(
-                            transactionId,
-                            category
-                    );
+        databaseExecutor.execute(() -> {
+            try {
+                AutoEtDatabase database =
+                        AutoEtDatabase.getInstance(getContext());
 
-            if (updatedRows == 0) {
-                call.reject("Transaction not found");
-                return;
+                Category categoryRecord =
+                        database.categoryDao()
+                                .findByNameIgnoreCase(selectedCategory);
+
+                if (categoryRecord == null) {
+                    call.reject("Invalid category");
+                    return;
+                }
+
+                int updatedRows =
+                        database.transactionDao().updateCategory(
+                                transactionId,
+                                categoryRecord.name
+                        );
+
+                if (updatedRows == 0) {
+                    call.reject("Transaction not found");
+                    return;
+                }
+
+                JSObject response = new JSObject();
+                response.put("success", true);
+                response.put("transactionId", transactionId);
+                response.put("category", categoryRecord.name);
+
+                call.resolve(response);
+
+            } catch (Exception e) {
+                android.util.Log.e(
+                        "AutoEtPlugin",
+                        "Failed to update category",
+                        e
+                );
+
+                call.reject("Failed to update category", e);
             }
+        });
+    }
 
-            JSObject response = new JSObject();
-            response.put("success", true);
-            response.put("transactionId", transactionId);
-            response.put("category", category);
+    @PluginMethod
+    public void getCategories(PluginCall call) {
 
-            call.resolve(response);
+        databaseExecutor.execute(() -> {
+            try {
+                AutoEtDatabase database =
+                        AutoEtDatabase.getInstance(getContext());
 
-        } catch (Exception e) {
-            android.util.Log.e(
-                    "AutoEtPlugin",
-                    "Failed to update category",
-                    e
+                List<Category> categories =
+                        database.categoryDao().getAllCategories();
+
+                JSArray resultArray = new JSArray();
+
+                for (Category category : categories) {
+                    resultArray.put(toJsObject(category));
+                }
+
+                JSObject response = new JSObject();
+                response.put("categories", resultArray);
+
+                call.resolve(response);
+
+            } catch (Exception e) {
+                android.util.Log.e(
+                        "AutoEtPlugin",
+                        "Failed to load categories",
+                        e
+                );
+
+                call.reject(
+                        "Failed to load categories: " + e.getMessage(),
+                        e
+                );
+            }
+        });
+    }
+
+    @PluginMethod
+    public void addCategory(PluginCall call) {
+
+        String rawName = call.getString("name");
+        String rawIcon = call.getString("icon");
+
+        if (rawName == null || rawName.trim().isEmpty()) {
+            call.reject("Enter a category name");
+            return;
+        }
+
+        final String name = rawName.trim();
+
+        if (name.length() > MAX_CATEGORY_NAME_LENGTH) {
+            call.reject(
+                    "Category name must be " +
+                            MAX_CATEGORY_NAME_LENGTH +
+                            " characters or fewer"
             );
-
-            call.reject("Failed to update category", e);
+            return;
         }
-    });
-}
 
+        final String icon =
+                rawIcon == null || rawIcon.trim().isEmpty()
+                        ? "Tag"
+                        : rawIcon.trim();
+
+        databaseExecutor.execute(() -> {
+            try {
+                AutoEtDatabase database =
+                        AutoEtDatabase.getInstance(getContext());
+
+                CategoryDao categoryDao = database.categoryDao();
+
+                if (categoryDao.countByNameIgnoreCase(name) > 0) {
+                    call.reject(
+                            "A category with this name already exists"
+                    );
+                    return;
+                }
+
+                Category category = new Category();
+                category.name = name;
+                category.icon = icon;
+                category.isDefault = false;
+                category.sortOrder = categoryDao.getNextSortOrder();
+
+                long insertedId = categoryDao.insert(category);
+
+                if (insertedId == -1) {
+                    call.reject("Could not save category");
+                    return;
+                }
+
+                category.id = (int) insertedId;
+
+                call.resolve(toJsObject(category));
+
+            } catch (Exception e) {
+                android.util.Log.e(
+                        "AutoEtPlugin",
+                        "Failed to save category",
+                        e
+                );
+
+                call.reject("Failed to save category", e);
+            }
+        });
+    }
+
+    @PluginMethod
+    public void deleteCategory(PluginCall call) {
+
+        Integer categoryId = call.getInt("id");
+
+        if (categoryId == null || categoryId <= 0) {
+            call.reject("Invalid category ID");
+            return;
+        }
+
+        databaseExecutor.execute(() -> {
+            try {
+                AutoEtDatabase database =
+                        AutoEtDatabase.getInstance(getContext());
+
+                CategoryDao categoryDao = database.categoryDao();
+
+                Category category = categoryDao.findById(categoryId);
+
+                if (category == null) {
+                    call.reject("Category not found");
+                    return;
+                }
+
+                if (category.isDefault) {
+                    call.reject(
+                            "Default categories cannot be deleted"
+                    );
+                    return;
+                }
+
+                // Keep the transaction history intact by moving the
+                // transactions of this category to "Other".
+                database.transactionDao().reassignCategory(
+                        category.name,
+                        "Other"
+                );
+
+                int deletedRows =
+                        categoryDao.deleteCustomCategory(categoryId);
+
+                if (deletedRows == 0) {
+                    call.reject("Could not delete category");
+                    return;
+                }
+
+                JSObject response = new JSObject();
+                response.put("success", true);
+                response.put("id", categoryId);
+
+                call.resolve(response);
+
+            } catch (Exception e) {
+                android.util.Log.e(
+                        "AutoEtPlugin",
+                        "Failed to delete category",
+                        e
+                );
+
+                call.reject("Failed to delete category", e);
+            }
+        });
+    }
+
+    private JSObject toJsObject(Category category) {
+        JSObject item = new JSObject();
+
+        item.put("id", category.id);
+        item.put("name", category.name);
+        item.put("icon", category.icon);
+        item.put("isDefault", category.isDefault);
+        item.put("sortOrder", category.sortOrder);
+
+        return item;
+    }
 }

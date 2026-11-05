@@ -11,6 +11,14 @@ export interface Transaction {
   category: string;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+  icon: string;
+  isDefault: boolean;
+  sortOrder: number;
+}
+
 interface TransactionPluginInterface {
   getTransactions(): Promise<{
     transactions: Transaction[];
@@ -23,6 +31,7 @@ interface TransactionPluginInterface {
     category: string;
   }): Promise<{
     id: number;
+    category: string;
   }>;
 
   updateCategory(options: {
@@ -32,6 +41,22 @@ interface TransactionPluginInterface {
     success: boolean;
     transactionId: number;
     category: string;
+  }>;
+
+  getCategories(): Promise<{
+    categories: Category[];
+  }>;
+
+  addCategory(options: {
+    name: string;
+    icon: string;
+  }): Promise<Category>;
+
+  deleteCategory(options: {
+    id: number;
+  }): Promise<{
+    success: boolean;
+    id: number;
   }>;
 }
 

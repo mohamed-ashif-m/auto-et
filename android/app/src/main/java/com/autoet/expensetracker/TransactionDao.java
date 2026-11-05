@@ -30,5 +30,8 @@ public interface TransactionDao {
     Transaction findByDedupeKey(String key);
 
     @Query("UPDATE transactions SET category = :category WHERE id = :transactionId")
-int updateCategory(int transactionId, String category);
+    int updateCategory(int transactionId, String category);
+
+    @Query("UPDATE transactions SET category = :newCategory WHERE category = :oldCategory")
+    int reassignCategory(String oldCategory, String newCategory);
 }

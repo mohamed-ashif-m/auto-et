@@ -1,8 +1,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import TransactionPlugin, {
+  type Category,
   type Transaction,
 } from './plugins/transactionPlugin'
+import CategoryManager from './components/CategoryManager'
+import CategoryPicker from './components/CategoryPicker'
+import { renderCategoryIcon } from './icons'
 import './App.css'
 
 const formatCurrency = (paise: number) =>
@@ -12,22 +16,81 @@ const formatCurrency = (paise: number) =>
     minimumFractionDigits: 2,
   }).format(paise / 100)
 
-const CATEGORIES = [
-  'Online Payment',
-  'Cash',
-  'Food & Dining',
-  'Transport',
-  'Shopping',
-  'Bills & Utilities',
-  'Healthcare',
-  'Entertainment',
-  'Other',
+// Fallback used until the categories are loaded from the local database
+// (and on platforms where the native plugin is not available).
+const DEFAULT_CATEGORIES: Category[] = [
+  {
+    id: -9,
+    name: 'Online Payment',
+    icon: 'CreditCard',
+    isDefault: true,
+    sortOrder: 0,
+  },
+  {
+    id: -8,
+    name: 'Cash',
+    icon: 'Banknote',
+    isDefault: true,
+    sortOrder: 1,
+  },
+  {
+    id: -7,
+    name: 'Food & Dining',
+    icon: 'Utensils',
+    isDefault: true,
+    sortOrder: 2,
+  },
+  {
+    id: -6,
+    name: 'Transport',
+    icon: 'Car',
+    isDefault: true,
+    sortOrder: 3,
+  },
+  {
+    id: -5,
+    name: 'Shopping',
+    icon: 'ShoppingBag',
+    isDefault: true,
+    sortOrder: 4,
+  },
+  {
+    id: -4,
+    name: 'Bills & Utilities',
+    icon: 'ReceiptText',
+    isDefault: true,
+    sortOrder: 5,
+  },
+  {
+    id: -3,
+    name: 'Healthcare',
+    icon: 'HeartPulse',
+    isDefault: true,
+    sortOrder: 6,
+  },
+  {
+    id: -2,
+    name: 'Entertainment',
+    icon: 'Clapperboard',
+    isDefault: true,
+    sortOrder: 7,
+  },
+  {
+    id: -1,
+    name: 'Other',
+    icon: 'Shapes',
+    isDefault: true,
+    sortOrder: 8,
+  },
 ]
 
 function App() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [categories, setCategories] =
+    useState<Category[]>(DEFAULT_CATEGORIES)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showCategoryManager, setShowCategoryManager] = useState(false)
 
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<'ALL' | 'EXPENSE' | 'INCOME'>('ALL')
@@ -58,6 +121,23 @@ function App() {
       setError('Unable to load transactions. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }, [])
+
+  const loadCategories = useCallback(async () => {
+    try {
+      const result = await TransactionPlugin.getCategories()
+
+      setCategories(
+        result.categories.length > 0
+          ? result.categories
+          : DEFAULT_CATEGORIES,
+      )
+    } catch (err) {
+      console.error('Category loading failed:', err)
+      setCategories((previous) =>
+        previous.length > 0 ? previous : DEFAULT_CATEGORIES,
+      )
     }
   }, [])
   const handleAddTransaction = async () => {
@@ -144,8 +224,11 @@ function App() {
   }
 
   useEffect(() => {
+    // The loaders update React state once the native bridge responds.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadTransactions()
-  }, [loadTransactions])
+    void loadCategories()
+  }, [loadTransactions, loadCategories])
 
   const summary = useMemo(() => {
     const income = transactions
@@ -224,15 +307,24 @@ function App() {
             <p>{transactions.length} transactions recorded</p>
           </div>
 
-          <button
-            className="add-transaction-button"
-            onClick={() => {
-              setFormError('')
-              setShowAddForm(true)
-            }}
-          >
-            + Add
-          </button>
+          <div className="heading-actions">
+            <button
+              className="manage-categories-button"
+              onClick={() => setShowCategoryManager(true)}
+            >
+              Categories
+            </button>
+
+            <button
+              className="add-transaction-button"
+              onClick={() => {
+                setFormError('')
+                setShowAddForm(true)
+              }}
+            >
+              + Add
+            </button>
+          </div>
         </div>
         {showAddForm && (
           <div className="manual-form">
@@ -269,18 +361,12 @@ function App() {
               <option value="EXPENSE">Expense</option>
               <option value="INCOME">Income</option>
             </select>
-            <label htmlFor="transaction-category">Category</label>
-            <select
-              id="transaction-category"
+            <label>Category</label>
+            <CategoryPicker
+              categories={categories}
               value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-            >
-              {CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+              onChange={setNewCategory}
+            />
             {formError && <p className="form-error">{formError}</p>}
 
             <div className="form-actions">
@@ -374,13 +460,14 @@ function App() {
                     className={`transaction-icon ${isIncome ? 'income-icon' : 'expense-icon'
                       }`}
                   >
-                    {isIncome ? '↙' : '↗'}
+                    {renderCategoryIcon(transaction.category, 20)}
                   </div>
 
                   <div className="transaction-info">
                     <h3>{transaction.merchant || 'Unknown merchant'}</h3>
                     <p>
                       {transaction.type} ·{' '}
+                      {transaction.category || 'Other'} ·{' '}
                       {new Date(
                         transaction.transactionTime,
                       ).toLocaleString('en-IN', {
@@ -443,7 +530,10 @@ function App() {
 
             <div className="detail-row">
               <span>Category</span>
-              <strong>{selectedTransaction.category || 'Other'}</strong>
+              <strong className="category-detail-value">
+                {renderCategoryIcon(selectedTransaction.category, 15)}
+                {selectedTransaction.category || 'Other'}
+              </strong>
 
               <button
                 type="button"
@@ -459,19 +549,13 @@ function App() {
 
             {isEditingCategory && (
               <div className="manual-form">
-                <label htmlFor="edit-category">Select category</label>
+                <label>Select category</label>
 
-                <select
-                  id="edit-category"
+                <CategoryPicker
+                  categories={categories}
                   value={editCategory}
-                  onChange={(e) => setEditCategory(e.target.value)}
-                >
-                  {CATEGORIES.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setEditCategory}
+                />
 
                 {categoryError && (
                   <p className="form-error">{categoryError}</p>
@@ -534,6 +618,19 @@ function App() {
             </button>
           </section>
         </div>
+      )}
+
+      {showCategoryManager && (
+        <CategoryManager
+          categories={categories}
+          onClose={() => setShowCategoryManager(false)}
+          onCategoriesChanged={async () => {
+            await Promise.all([
+              loadCategories(),
+              loadTransactions(),
+            ])
+          }}
+        />
       )}
 
       <footer className="app-footer">
