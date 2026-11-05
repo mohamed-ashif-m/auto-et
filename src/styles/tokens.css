@@ -52,13 +52,29 @@
   color-scheme: dark;
 }
 
-:root[data-corners='sharp'] { --r: 4px; }
-:root[data-corners='soft'] { --r: 16px; }
-:root[data-corners='round'] { --r: 28px; }
+:root[data-corners='sharp'] {
+  --r: 4px;
+}
 
-:root[data-shadow='flat'] { --off: 0px; }
-:root[data-shadow='bold'] { --off: 5px; }
-:root[data-shadow='heavy'] { --off: 9px; }
+:root[data-corners='soft'] {
+  --r: 16px;
+}
+
+:root[data-corners='round'] {
+  --r: 28px;
+}
+
+:root[data-shadow='flat'] {
+  --off: 0px;
+}
+
+:root[data-shadow='bold'] {
+  --off: 5px;
+}
+
+:root[data-shadow='heavy'] {
+  --off: 9px;
+}
 
 /* A coloured card re-points the local tokens to ink so everything inside
    (buttons, chips, inputs) keeps its black borders, in both themes. */
@@ -70,10 +86,31 @@
   --surface: #fffdf8;
   color: #111111;
 }
-.tone.t-yellow { background: var(--yellow); }
-.tone.t-coral { background: var(--coral); }
-.tone.t-lime { background: var(--lime); }
-.tone.t-violet { background: var(--violet); }
-.tone.t-sky { background: var(--sky); }
-.tone.t-pink { background: var(--pink); }
-.tone.t-orange { background: var(--orange); }
+
+.tone.t-yellow {
+  background: var(--yellow);
+}
+
+.tone.t-coral {
+  background: var(--coral);
+}
+
+.tone.t-lime {
+  background: var(--lime);
+}
+
+.tone.t-violet {
+  background: var(--violet);
+}
+
+.tone.t-sky {
+  background: var(--sky);
+}
+
+.tone.t-pink {
+  background: var(--pink);
+}
+
+.tone.t-orange {
+  background: var(--orange);
+}
