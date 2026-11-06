@@ -61,7 +61,7 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 function Main({ go }: { go: (p: Page) => void }) {
   const {
     settings, patchSettings, autoTrackOn, openAutoTrackSettings, refreshAutoTrack,
-    rules, exportData, importTransactions ,clearAll, notify, transactions,
+    rules, exportData, importTransactions ,clearAll, notify, transactions, openIntro,
   } = useStore()
   const [name, setName] = useState(settings.name)
   const [confirmWipe, setConfirmWipe] = useState(false)
@@ -133,6 +133,13 @@ function Main({ go }: { go: (p: Page) => void }) {
             onBlur={() => patchSettings({ name: name.trim() })}
           />
         </Field>
+        <button className="nav-row" onClick={openIntro}>
+          <span className="grow">
+            <strong>App tour</strong>
+            <span className="hint">Replay the quick guide to Auto Et&apos;s features</span>
+          </span>
+          <Icon name="sparkle" size={20} />
+        </button>
       </Group>
 
       <Group title="Look & feel" icon="palette">

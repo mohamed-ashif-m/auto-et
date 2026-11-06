@@ -19,6 +19,16 @@ import type { Category, Loan, Rule, Settings, Transaction } from '../lib/types'
 const CACHE_KEY = 'autoet.settings.cache'
 const RULES_CACHE_KEY = 'autoet.rules.cache'
 const LOANS_CACHE_KEY = 'autoet.loans.cache'
+const INTRO_KEY = 'autoet.intro.done'
+
+/** True when this device has been used before (intro seen, or settings already saved). */
+function hasSeenIntro(): boolean {
+  try {
+    return localStorage.getItem(INTRO_KEY) === '1' || localStorage.getItem(CACHE_KEY) !== null
+  } catch {
+    return false
+  }
+}
 
 interface Toast {
   id: number
@@ -35,6 +45,9 @@ interface Store {
   loans: Loan[]
   toast: Toast | null
   autoTrackOn: boolean | null
+  introOpen: boolean
+  openIntro: () => void
+  finishIntro: () => void
 
   fmt: (paise: number) => string
   fmtShort: (paise: number) => string
@@ -93,6 +106,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<Toast | null>(null)
   const [autoTrackOn, setAutoTrackOn] = useState<boolean | null>(null)
   const settingsLoaded = useRef(false)
+  // First launch ever: open the welcome tour straight away (no flash of the empty app).
+  const [introOpen, setIntroOpen] = useState(() => !hasSeenIntro())
+
+  const openIntro = useCallback(() => setIntroOpen(true), [])
+  const finishIntro = useCallback(() => {
+    setIntroOpen(false)
+    try {
+      localStorage.setItem(INTRO_KEY, '1')
+    } catch {
+      /* storage unavailable — the tour may show again next launch */
+    }
+    TransactionPlugin.setValue({ key: 'introDone', value: '1' }).catch(() => {})
+  }, [])
 
   /* ---------- theme -> DOM ---------- */
   useEffect(() => {
@@ -149,11 +175,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void (async () => {
       try {
-        const [s, r, l] = await Promise.all([
+        const [s, r, l, intro] = await Promise.all([
           TransactionPlugin.getValue({ key: 'settings' }),
           TransactionPlugin.getValue({ key: 'rules' }),
           TransactionPlugin.getValue({ key: 'loans' }),
+          TransactionPlugin.getValue({ key: 'introDone' }),
         ])
+        // Web storage was cleared but the encrypted DB remembers this person: skip the tour.
+        if (intro.value || s.value) {
+          setIntroOpen(false)
+          try {
+            localStorage.setItem(INTRO_KEY, '1')
+          } catch {
+            /* ignore */
+          }
+        }
         if (s.value) setSettings(mergeSettings(JSON.parse(s.value)))
         if (r.value) setRules(JSON.parse(r.value))
         if (l.value) setLoans(JSON.parse(l.value))
@@ -388,6 +424,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     loans,
     toast,
     autoTrackOn,
+    introOpen,
+    openIntro,
+    finishIntro,
     fmt,
     fmtShort,
     catOf,

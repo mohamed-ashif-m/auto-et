@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Icon } from './components/ui'
+import { Intro } from './components/Intro'
 import { TxnDetailSheet, TxnFormSheet } from './components/TxnSheets'
 import { Budget } from './screens/Budget'
 import { History } from './screens/History'
@@ -12,6 +13,7 @@ import './styles/tokens.css'
 import './styles/base.css'
 import './styles/components.css'
 import './styles/screens.css'
+import './styles/intro.css'
 
 const TABS: Array<{ id: Tab; label: string; icon: string }> = [
   { id: 'home', label: 'Home', icon: 'home' },
@@ -27,7 +29,7 @@ type Sheet =
   | null
 
 function Shell() {
-  const { transactions, toast } = useStore()
+  const { transactions, toast, introOpen } = useStore()
   const [tab, setTab] = useState<Tab>('home')
   const [sheet, setSheet] = useState<Sheet>(null)
   const [showSettings, setShowSettings] = useState(false)
@@ -75,6 +77,8 @@ function Shell() {
       )}
 
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
+
+      {introOpen && <Intro />}
 
       {toast && (
         <div key={toast.id} className={`toast ${toast.tone}`} role="status">

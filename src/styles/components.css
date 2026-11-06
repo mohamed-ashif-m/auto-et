@@ -1803,3 +1803,134 @@
 /* Transactions list section */
 .cal-day-txns-section { display: flex; flex-direction: column; gap: 4px; }
 .cal-day-txns-section .txn-row { font-size: 12px; }
+
+
+/* =====================================================================
+   RESPONSIVE FIX — Financial Table + Calendar on small phones
+   ===================================================================== */
+
+/* Narrow phones get a little more room inside every bottom sheet */
+@media (max-width: 400px) {
+  .sheet { padding-left: 12px; padding-right: 12px; }
+}
+
+/* ---------- Financial Table ---------- */
+.ft-view { min-width: 0; }
+.ft-controls-row { gap: 8px; flex-wrap: wrap; }
+
+.ft-summary-hero { padding: 18px 12px 14px; max-width: 100%; }
+.ft-balance-num {
+  font-size: clamp(24px, 8.4vw, 38px);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.ft-split-stats { max-width: 100%; }
+.ft-split-col { min-width: 0; }
+.ft-split-lbl { font-size: clamp(9px, 2.7vw, 11px); }
+.ft-split-val {
+  font-size: clamp(13px, 4.4vw, 19px);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+/* The table fills the box exactly (fixed layout) and only scrolls as a last resort */
+.ft-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ft-ledger-table { table-layout: fixed; width: 100%; min-width: 0; }
+.ft-ledger-table thead th,
+.ft-year-heading-td,
+.ft-month-row td { padding-left: clamp(5px, 2vw, 14px); padding-right: clamp(5px, 2vw, 14px); }
+.ft-month-row td { padding-top: clamp(10px, 3vw, 13px); padding-bottom: clamp(10px, 3vw, 13px); }
+
+.ft-ledger-table thead th {
+  font-size: clamp(8px, 2.5vw, 11px);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.ft-month-badge { font-size: clamp(12px, 3.6vw, 14px); }
+
+/* Numbers use the narrower body font so 7-digit amounts still fit */
+.ft-td-num {
+  font-family: var(--body);
+  font-weight: 800;
+  font-size: clamp(11px, 3.5vw, 14px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* ---------- Calendar ---------- */
+.cal-sheet-container { min-width: 0; }
+
+/* Three equal presets that shrink, instead of a row that overflows */
+.cal-presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  overflow: visible;
+  padding: 0 3px 3px 0; /* room for the hard shadow */
+}
+.cal-preset-btn {
+  flex: none;
+  min-width: 0;
+  min-height: 36px;
+  padding: 6px 2px;
+  font-family: var(--display);
+  font-size: clamp(9px, 2.9vw, 12px);
+  line-height: 1.1;
+  letter-spacing: 0;
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.cal-header { gap: 8px; }
+.cal-month-title { font-size: clamp(14px, 4.4vw, 17px); text-align: center; min-width: 0; }
+
+.cal-grid { gap: clamp(2px, 0.8vw, 5px); }
+.cal-weekday { font-size: clamp(8px, 2.4vw, 11px); }
+
+/* Cells grow with their content, so income + expense lines are never clipped */
+.cal-cell {
+  aspect-ratio: auto;
+  height: auto;
+  min-height: clamp(46px, 13.5vw, 62px);
+  padding: 4px 1px 3px;
+  overflow: visible;
+  justify-content: flex-start;
+}
+.cal-day-number { font-size: clamp(11px, 3.4vw, 14px); }
+.cal-cell-amounts { flex: none; overflow: visible; gap: 1px; margin-top: 2px; }
+.cal-amt-income,
+.cal-amt-expense {
+  font-size: clamp(8px, 2.5vw, 10px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Day stats view ---------- */
+.cal-day-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 340px) {
+  .cal-day-kpis { grid-template-columns: 1fr; }
+}
+.cal-day-kpi-card { min-width: 0; padding: 8px 6px; }
+.cal-kpi-lbl { font-size: clamp(9px, 2.7vw, 11px); }
+.cal-kpi-val {
+  font-size: clamp(12px, 3.8vw, 16px);
+  overflow-wrap: anywhere;
+  line-height: 1.1;
+}
+.cal-day-stats-date { font-size: clamp(12px, 3.8vw, 15px); }
+
+/* ---------- Final touches ---------- */
+/* let the hard shadows of the last column / last row show instead of being clipped */
+.cal-grid-wrapper { overflow: visible; padding: 0 3px 3px 0; }
+
+/* the year <select> inherited the global 50px input height */
+.ft-year-select { min-height: 0; width: auto; padding: 2px 14px 2px 0; border: 0; box-shadow: none; }
+.ft-filter-select-wrap { padding: 3px 12px; }
+
+.ft-th-month { width: 22%; }

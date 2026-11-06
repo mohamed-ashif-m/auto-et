@@ -31,7 +31,7 @@ export function Home({
   openSettings: () => void
 }) {
   const {
-    transactions, loading, error, settings, fmt, catOf, refresh, patchSettings,
+    transactions, loading, error, settings, fmt, catOf, refresh,
     autoTrackOn, openAutoTrackSettings,
   } = useStore()
   const [offset, setOffset] = useState(0)
