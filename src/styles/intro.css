@@ -241,7 +241,7 @@
 .intro-foot {
   display: flex;
   gap: 12px;
-  padding: 12px 18px calc(18px + var(--safe-bottom));
+  padding: 12px 18px 18px;
 }
 
 .intro-back {

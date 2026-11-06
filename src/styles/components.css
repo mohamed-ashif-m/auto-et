@@ -771,7 +771,7 @@
   z-index: 30;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(14px + var(--safe-bottom));
+  bottom: 14px;
   width: min(calc(100% - 28px), 452px);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -807,7 +807,7 @@
   position: fixed;
   z-index: 31;
   right: max(18px, calc((100vw - 480px) / 2 + 18px));
-  bottom: calc(100px + var(--safe-bottom));
+  bottom: 100px;
   display: grid;
   place-items: center;
   width: 64px;
