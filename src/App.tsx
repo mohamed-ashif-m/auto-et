@@ -7,7 +7,7 @@ import { History } from './screens/History'
 import { Home } from './screens/Home'
 import { Settings } from './screens/Settings'
 import { Stats } from './screens/Stats'
-import { StoreProvider, useStore } from './store/AppStore'
+import { StoreProvider, ToastHost, useStore } from './store/AppStore'
 import type { Tab, Transaction } from './lib/types'
 import './styles/tokens.css'
 import './styles/base.css'
@@ -29,7 +29,7 @@ type Sheet =
   | null
 
 function Shell() {
-  const { transactions, toast, introOpen } = useStore()
+  const { transactions, introOpen, refreshAutoTrack } = useStore()
   const [tab, setTab] = useState<Tab>('home')
   const [sheet, setSheet] = useState<Sheet>(null)
   const [showSettings, setShowSettings] = useState(false)
@@ -76,15 +76,18 @@ function Shell() {
         <TxnDetailSheet txn={detail} onClose={() => setSheet(null)} onEdit={(txn) => setSheet({ kind: 'edit', txn })} />
       )}
 
-      {showSettings && <Settings onClose={() => setShowSettings(false)} />}
+      {showSettings && (
+        <Settings
+          onClose={() => {
+            setShowSettings(false)
+            void refreshAutoTrack()
+          }}
+        />
+      )}
 
       {introOpen && <Intro />}
 
-      {toast && (
-        <div key={toast.id} className={`toast ${toast.tone}`} role="status">
-          {toast.text}
-        </div>
-      )}
+      <ToastHost />
     </div>
   )
 }

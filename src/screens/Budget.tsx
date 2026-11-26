@@ -31,9 +31,10 @@ export function Budget() {
   const rows = useMemo(() => inRange(transactions, range), [transactions, range])
   const sum = useMemo(() => summarize(rows), [rows])
 
+  const [now] = useState(() => Date.now())
   const budget = settings.monthlyBudget
   const left = budget - sum.expense
-  const daysLeft = Math.max(1, Math.ceil((range.end - Date.now()) / 86400000))
+  const daysLeft = Math.max(1, Math.ceil((range.end - now) / 86400000))
 
   const lowBudget = budget > 0 && left * 10 < budget
 

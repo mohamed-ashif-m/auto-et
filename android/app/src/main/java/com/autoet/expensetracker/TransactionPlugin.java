@@ -30,6 +30,28 @@ public class TransactionPlugin extends Plugin {
     private static final ExecutorService databaseExecutor =
             Executors.newSingleThreadExecutor();
 
+    // Set while the WebView is alive so the notification listener (a different
+    // component) can push an event instead of the web layer polling the DB.
+    private static volatile TransactionPlugin sharedInstance;
+
+    @Override
+    public void load() {
+        super.load();
+        sharedInstance = this;
+    }
+
+    @Override
+    protected void handleOnDestroy() {
+        sharedInstance = null;
+        super.handleOnDestroy();
+    }
+
+    /** Called by the SMS listener after it stores a new transaction. */
+    public static void notifyTransactionsChanged() {
+        TransactionPlugin plugin = sharedInstance;
+        if (plugin != null) plugin.notifyListeners("transactionsChanged", new JSObject());
+    }
+
     // ------------------------------------------------------------------
     // Validation helpers
     // ------------------------------------------------------------------

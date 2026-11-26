@@ -1,0 +1,2277 @@
+[
+  {
+    "date": "2026-01-01",
+    "type": "EXPENSE",
+    "amount": 1.6,
+    "category": "Misc",
+    "remark": "Entry 0"
+  },
+  {
+    "date": "2026-01-02",
+    "type": "EXPENSE",
+    "amount": 2.97,
+    "category": "Misc",
+    "remark": "Entry 1"
+  },
+  {
+    "date": "2026-01-03",
+    "type": "EXPENSE",
+    "amount": 4.34,
+    "category": "Misc",
+    "remark": "Entry 2"
+  },
+  {
+    "date": "2026-01-04",
+    "type": "EXPENSE",
+    "amount": 5.71,
+    "category": "Misc",
+    "remark": "Entry 3"
+  },
+  {
+    "date": "2026-01-05",
+    "type": "EXPENSE",
+    "amount": 7.08,
+    "category": "Misc",
+    "remark": "Entry 4"
+  },
+  {
+    "date": "2026-01-06",
+    "type": "EXPENSE",
+    "amount": 8.45,
+    "category": "Misc",
+    "remark": "Entry 5"
+  },
+  {
+    "date": "2026-01-07",
+    "type": "EXPENSE",
+    "amount": 9.82,
+    "category": "Misc",
+    "remark": "Entry 6"
+  },
+  {
+    "date": "2026-01-08",
+    "type": "EXPENSE",
+    "amount": 11.19,
+    "category": "Misc",
+    "remark": "Entry 7"
+  },
+  {
+    "date": "2026-01-09",
+    "type": "EXPENSE",
+    "amount": 12.56,
+    "category": "Misc",
+    "remark": "Entry 8"
+  },
+  {
+    "date": "2026-01-10",
+    "type": "EXPENSE",
+    "amount": 13.93,
+    "category": "Misc",
+    "remark": "Entry 9"
+  },
+  {
+    "date": "2026-01-11",
+    "type": "EXPENSE",
+    "amount": 15.3,
+    "category": "Misc",
+    "remark": "Entry 10"
+  },
+  {
+    "date": "2026-01-12",
+    "type": "EXPENSE",
+    "amount": 16.67,
+    "category": "Misc",
+    "remark": "Entry 11"
+  },
+  {
+    "date": "2026-01-13",
+    "type": "EXPENSE",
+    "amount": 18.04,
+    "category": "Misc",
+    "remark": "Entry 12"
+  },
+  {
+    "date": "2026-01-14",
+    "type": "EXPENSE",
+    "amount": 19.41,
+    "category": "Misc",
+    "remark": "Entry 13"
+  },
+  {
+    "date": "2026-01-15",
+    "type": "EXPENSE",
+    "amount": 20.78,
+    "category": "Misc",
+    "remark": "Entry 14"
+  },
+  {
+    "date": "2026-01-16",
+    "type": "EXPENSE",
+    "amount": 22.15,
+    "category": "Misc",
+    "remark": "Entry 15"
+  },
+  {
+    "date": "2026-01-17",
+    "type": "EXPENSE",
+    "amount": 23.52,
+    "category": "Misc",
+    "remark": "Entry 16"
+  },
+  {
+    "date": "2026-01-18",
+    "type": "EXPENSE",
+    "amount": 24.89,
+    "category": "Misc",
+    "remark": "Entry 17"
+  },
+  {
+    "date": "2026-01-19",
+    "type": "EXPENSE",
+    "amount": 26.26,
+    "category": "Misc",
+    "remark": "Entry 18"
+  },
+  {
+    "date": "2026-01-20",
+    "type": "EXPENSE",
+    "amount": 27.63,
+    "category": "Misc",
+    "remark": "Entry 19"
+  },
+  {
+    "date": "2026-01-21",
+    "type": "EXPENSE",
+    "amount": 29,
+    "category": "Misc",
+    "remark": "Entry 20"
+  },
+  {
+    "date": "2026-01-22",
+    "type": "EXPENSE",
+    "amount": 30.37,
+    "category": "Misc",
+    "remark": "Entry 21"
+  },
+  {
+    "date": "2026-01-23",
+    "type": "EXPENSE",
+    "amount": 31.74,
+    "category": "Misc",
+    "remark": "Entry 22"
+  },
+  {
+    "date": "2026-01-24",
+    "type": "EXPENSE",
+    "amount": 33.11,
+    "category": "Misc",
+    "remark": "Entry 23"
+  },
+  {
+    "date": "2026-01-25",
+    "type": "EXPENSE",
+    "amount": 34.48,
+    "category": "Misc",
+    "remark": "Entry 24"
+  },
+  {
+    "date": "2026-01-26",
+    "type": "EXPENSE",
+    "amount": 35.85,
+    "category": "Misc",
+    "remark": "Entry 25"
+  },
+  {
+    "date": "2026-01-27",
+    "type": "EXPENSE",
+    "amount": 37.22,
+    "category": "Misc",
+    "remark": "Entry 26"
+  },
+  {
+    "date": "2026-01-28",
+    "type": "EXPENSE",
+    "amount": 38.59,
+    "category": "Misc",
+    "remark": "Entry 27"
+  },
+  {
+    "date": "2026-01-29",
+    "type": "EXPENSE",
+    "amount": 39.96,
+    "category": "Misc",
+    "remark": "Entry 28"
+  },
+  {
+    "date": "2026-01-30",
+    "type": "EXPENSE",
+    "amount": 41.33,
+    "category": "Misc",
+    "remark": "Entry 29"
+  },
+  {
+    "date": "2026-01-31",
+    "type": "EXPENSE",
+    "amount": 42.7,
+    "category": "Misc",
+    "remark": "Entry 30"
+  },
+  {
+    "date": "2026-02-01",
+    "type": "EXPENSE",
+    "amount": 44.07,
+    "category": "Misc",
+    "remark": "Entry 31"
+  },
+  {
+    "date": "2026-02-02",
+    "type": "EXPENSE",
+    "amount": 45.44,
+    "category": "Misc",
+    "remark": "Entry 32"
+  },
+  {
+    "date": "2026-02-03",
+    "type": "EXPENSE",
+    "amount": 46.81,
+    "category": "Misc",
+    "remark": "Entry 33"
+  },
+  {
+    "date": "2026-02-04",
+    "type": "EXPENSE",
+    "amount": 48.18,
+    "category": "Misc",
+    "remark": "Entry 34"
+  },
+  {
+    "date": "2026-02-05",
+    "type": "EXPENSE",
+    "amount": 49.55,
+    "category": "Misc",
+    "remark": "Entry 35"
+  },
+  {
+    "date": "2026-02-06",
+    "type": "EXPENSE",
+    "amount": 50.92,
+    "category": "Misc",
+    "remark": "Entry 36"
+  },
+  {
+    "date": "2026-02-07",
+    "type": "EXPENSE",
+    "amount": 52.29,
+    "category": "Misc",
+    "remark": "Entry 37"
+  },
+  {
+    "date": "2026-02-08",
+    "type": "EXPENSE",
+    "amount": 53.66,
+    "category": "Misc",
+    "remark": "Entry 38"
+  },
+  {
+    "date": "2026-02-09",
+    "type": "EXPENSE",
+    "amount": 55.03,
+    "category": "Misc",
+    "remark": "Entry 39"
+  },
+  {
+    "date": "2026-02-10",
+    "type": "EXPENSE",
+    "amount": 56.4,
+    "category": "Misc",
+    "remark": "Entry 40"
+  },
+  {
+    "date": "2026-02-11",
+    "type": "EXPENSE",
+    "amount": 57.77,
+    "category": "Misc",
+    "remark": "Entry 41"
+  },
+  {
+    "date": "2026-02-12",
+    "type": "EXPENSE",
+    "amount": 59.14,
+    "category": "Misc",
+    "remark": "Entry 42"
+  },
+  {
+    "date": "2026-02-13",
+    "type": "EXPENSE",
+    "amount": 60.51,
+    "category": "Misc",
+    "remark": "Entry 43"
+  },
+  {
+    "date": "2026-02-14",
+    "type": "EXPENSE",
+    "amount": 61.88,
+    "category": "Misc",
+    "remark": "Entry 44"
+  },
+  {
+    "date": "2026-02-15",
+    "type": "EXPENSE",
+    "amount": 63.25,
+    "category": "Misc",
+    "remark": "Entry 45"
+  },
+  {
+    "date": "2026-02-16",
+    "type": "EXPENSE",
+    "amount": 64.62,
+    "category": "Misc",
+    "remark": "Entry 46"
+  },
+  {
+    "date": "2026-02-17",
+    "type": "EXPENSE",
+    "amount": 65.99,
+    "category": "Misc",
+    "remark": "Entry 47"
+  },
+  {
+    "date": "2026-02-18",
+    "type": "EXPENSE",
+    "amount": 67.36,
+    "category": "Misc",
+    "remark": "Entry 48"
+  },
+  {
+    "date": "2026-02-19",
+    "type": "EXPENSE",
+    "amount": 68.73,
+    "category": "Misc",
+    "remark": "Entry 49"
+  },
+  {
+    "date": "2026-02-20",
+    "type": "EXPENSE",
+    "amount": 70.1,
+    "category": "Misc",
+    "remark": "Entry 50"
+  },
+  {
+    "date": "2026-02-21",
+    "type": "EXPENSE",
+    "amount": 71.47,
+    "category": "Misc",
+    "remark": "Entry 51"
+  },
+  {
+    "date": "2026-02-22",
+    "type": "EXPENSE",
+    "amount": 72.84,
+    "category": "Misc",
+    "remark": "Entry 52"
+  },
+  {
+    "date": "2026-02-23",
+    "type": "EXPENSE",
+    "amount": 74.21,
+    "category": "Misc",
+    "remark": "Entry 53"
+  },
+  {
+    "date": "2026-02-24",
+    "type": "EXPENSE",
+    "amount": 75.58,
+    "category": "Misc",
+    "remark": "Entry 54"
+  },
+  {
+    "date": "2026-02-25",
+    "type": "EXPENSE",
+    "amount": 76.95,
+    "category": "Misc",
+    "remark": "Entry 55"
+  },
+  {
+    "date": "2026-02-26",
+    "type": "EXPENSE",
+    "amount": 78.32,
+    "category": "Misc",
+    "remark": "Entry 56"
+  },
+  {
+    "date": "2026-02-27",
+    "type": "EXPENSE",
+    "amount": 79.69,
+    "category": "Misc",
+    "remark": "Entry 57"
+  },
+  {
+    "date": "2026-02-28",
+    "type": "EXPENSE",
+    "amount": 81.06,
+    "category": "Misc",
+    "remark": "Entry 58"
+  },
+  {
+    "date": "2026-03-01",
+    "type": "EXPENSE",
+    "amount": 82.43,
+    "category": "Misc",
+    "remark": "Entry 59"
+  },
+  {
+    "date": "2026-03-02",
+    "type": "EXPENSE",
+    "amount": 83.8,
+    "category": "Misc",
+    "remark": "Entry 60"
+  },
+  {
+    "date": "2026-03-03",
+    "type": "EXPENSE",
+    "amount": 85.17,
+    "category": "Misc",
+    "remark": "Entry 61"
+  },
+  {
+    "date": "2026-03-04",
+    "type": "EXPENSE",
+    "amount": 86.54,
+    "category": "Misc",
+    "remark": "Entry 62"
+  },
+  {
+    "date": "2026-03-05",
+    "type": "EXPENSE",
+    "amount": 87.91,
+    "category": "Misc",
+    "remark": "Entry 63"
+  },
+  {
+    "date": "2026-03-06",
+    "type": "EXPENSE",
+    "amount": 89.28,
+    "category": "Misc",
+    "remark": "Entry 64"
+  },
+  {
+    "date": "2026-03-07",
+    "type": "EXPENSE",
+    "amount": 90.65,
+    "category": "Misc",
+    "remark": "Entry 65"
+  },
+  {
+    "date": "2026-03-08",
+    "type": "EXPENSE",
+    "amount": 92.02,
+    "category": "Misc",
+    "remark": "Entry 66"
+  },
+  {
+    "date": "2026-03-09",
+    "type": "EXPENSE",
+    "amount": 93.39,
+    "category": "Misc",
+    "remark": "Entry 67"
+  },
+  {
+    "date": "2026-03-10",
+    "type": "EXPENSE",
+    "amount": 94.76,
+    "category": "Misc",
+    "remark": "Entry 68"
+  },
+  {
+    "date": "2026-03-11",
+    "type": "EXPENSE",
+    "amount": 96.13,
+    "category": "Misc",
+    "remark": "Entry 69"
+  },
+  {
+    "date": "2026-03-12",
+    "type": "EXPENSE",
+    "amount": 97.5,
+    "category": "Misc",
+    "remark": "Entry 70"
+  },
+  {
+    "date": "2026-03-13",
+    "type": "EXPENSE",
+    "amount": 98.87,
+    "category": "Misc",
+    "remark": "Entry 71"
+  },
+  {
+    "date": "2026-03-14",
+    "type": "EXPENSE",
+    "amount": 100.24,
+    "category": "Misc",
+    "remark": "Entry 72"
+  },
+  {
+    "date": "2026-03-15",
+    "type": "EXPENSE",
+    "amount": 101.61,
+    "category": "Misc",
+    "remark": "Entry 73"
+  },
+  {
+    "date": "2026-03-16",
+    "type": "EXPENSE",
+    "amount": 102.98,
+    "category": "Misc",
+    "remark": "Entry 74"
+  },
+  {
+    "date": "2026-03-17",
+    "type": "EXPENSE",
+    "amount": 104.35,
+    "category": "Misc",
+    "remark": "Entry 75"
+  },
+  {
+    "date": "2026-03-18",
+    "type": "EXPENSE",
+    "amount": 105.72,
+    "category": "Misc",
+    "remark": "Entry 76"
+  },
+  {
+    "date": "2026-03-19",
+    "type": "EXPENSE",
+    "amount": 107.09,
+    "category": "Misc",
+    "remark": "Entry 77"
+  },
+  {
+    "date": "2026-03-20",
+    "type": "EXPENSE",
+    "amount": 108.46,
+    "category": "Misc",
+    "remark": "Entry 78"
+  },
+  {
+    "date": "2026-03-21",
+    "type": "EXPENSE",
+    "amount": 109.83,
+    "category": "Misc",
+    "remark": "Entry 79"
+  },
+  {
+    "date": "2026-03-22",
+    "type": "EXPENSE",
+    "amount": 111.2,
+    "category": "Misc",
+    "remark": "Entry 80"
+  },
+  {
+    "date": "2026-03-23",
+    "type": "EXPENSE",
+    "amount": 112.57,
+    "category": "Misc",
+    "remark": "Entry 81"
+  },
+  {
+    "date": "2026-03-24",
+    "type": "EXPENSE",
+    "amount": 113.94,
+    "category": "Misc",
+    "remark": "Entry 82"
+  },
+  {
+    "date": "2026-03-25",
+    "type": "EXPENSE",
+    "amount": 115.31,
+    "category": "Misc",
+    "remark": "Entry 83"
+  },
+  {
+    "date": "2026-03-26",
+    "type": "EXPENSE",
+    "amount": 116.68,
+    "category": "Misc",
+    "remark": "Entry 84"
+  },
+  {
+    "date": "2026-03-27",
+    "type": "EXPENSE",
+    "amount": 118.05,
+    "category": "Misc",
+    "remark": "Entry 85"
+  },
+  {
+    "date": "2026-03-28",
+    "type": "EXPENSE",
+    "amount": 119.42,
+    "category": "Misc",
+    "remark": "Entry 86"
+  },
+  {
+    "date": "2026-03-29",
+    "type": "EXPENSE",
+    "amount": 120.79,
+    "category": "Misc",
+    "remark": "Entry 87"
+  },
+  {
+    "date": "2026-03-30",
+    "type": "EXPENSE",
+    "amount": 122.16,
+    "category": "Misc",
+    "remark": "Entry 88"
+  },
+  {
+    "date": "2026-03-31",
+    "type": "EXPENSE",
+    "amount": 123.53,
+    "category": "Misc",
+    "remark": "Entry 89"
+  },
+  {
+    "date": "2026-04-01",
+    "type": "EXPENSE",
+    "amount": 124.9,
+    "category": "Misc",
+    "remark": "Entry 90"
+  },
+  {
+    "date": "2026-04-02",
+    "type": "EXPENSE",
+    "amount": 126.27,
+    "category": "Misc",
+    "remark": "Entry 91"
+  },
+  {
+    "date": "2026-04-03",
+    "type": "EXPENSE",
+    "amount": 127.64,
+    "category": "Misc",
+    "remark": "Entry 92"
+  },
+  {
+    "date": "2026-04-04",
+    "type": "EXPENSE",
+    "amount": 129.01,
+    "category": "Misc",
+    "remark": "Entry 93"
+  },
+  {
+    "date": "2026-04-05",
+    "type": "EXPENSE",
+    "amount": 130.38,
+    "category": "Misc",
+    "remark": "Entry 94"
+  },
+  {
+    "date": "2026-04-06",
+    "type": "EXPENSE",
+    "amount": 131.75,
+    "category": "Misc",
+    "remark": "Entry 95"
+  },
+  {
+    "date": "2026-04-07",
+    "type": "EXPENSE",
+    "amount": 133.12,
+    "category": "Misc",
+    "remark": "Entry 96"
+  },
+  {
+    "date": "2026-04-08",
+    "type": "EXPENSE",
+    "amount": 134.49,
+    "category": "Misc",
+    "remark": "Entry 97"
+  },
+  {
+    "date": "2026-04-09",
+    "type": "EXPENSE",
+    "amount": 135.86,
+    "category": "Misc",
+    "remark": "Entry 98"
+  },
+  {
+    "date": "2026-04-10",
+    "type": "EXPENSE",
+    "amount": 137.23,
+    "category": "Misc",
+    "remark": "Entry 99"
+  },
+  {
+    "date": "2026-04-11",
+    "type": "EXPENSE",
+    "amount": 138.6,
+    "category": "Misc",
+    "remark": "Entry 100"
+  },
+  {
+    "date": "2026-04-12",
+    "type": "EXPENSE",
+    "amount": 139.97,
+    "category": "Misc",
+    "remark": "Entry 101"
+  },
+  {
+    "date": "2026-04-13",
+    "type": "EXPENSE",
+    "amount": 141.34,
+    "category": "Misc",
+    "remark": "Entry 102"
+  },
+  {
+    "date": "2026-04-14",
+    "type": "EXPENSE",
+    "amount": 142.71,
+    "category": "Misc",
+    "remark": "Entry 103"
+  },
+  {
+    "date": "2026-04-15",
+    "type": "EXPENSE",
+    "amount": 144.08,
+    "category": "Misc",
+    "remark": "Entry 104"
+  },
+  {
+    "date": "2026-04-16",
+    "type": "EXPENSE",
+    "amount": 145.45,
+    "category": "Misc",
+    "remark": "Entry 105"
+  },
+  {
+    "date": "2026-04-17",
+    "type": "EXPENSE",
+    "amount": 146.82,
+    "category": "Misc",
+    "remark": "Entry 106"
+  },
+  {
+    "date": "2026-04-18",
+    "type": "EXPENSE",
+    "amount": 148.19,
+    "category": "Misc",
+    "remark": "Entry 107"
+  },
+  {
+    "date": "2026-04-19",
+    "type": "EXPENSE",
+    "amount": 149.56,
+    "category": "Misc",
+    "remark": "Entry 108"
+  },
+  {
+    "date": "2026-04-20",
+    "type": "EXPENSE",
+    "amount": 150.93,
+    "category": "Misc",
+    "remark": "Entry 109"
+  },
+  {
+    "date": "2026-04-21",
+    "type": "EXPENSE",
+    "amount": 152.3,
+    "category": "Misc",
+    "remark": "Entry 110"
+  },
+  {
+    "date": "2026-04-22",
+    "type": "EXPENSE",
+    "amount": 153.67,
+    "category": "Misc",
+    "remark": "Entry 111"
+  },
+  {
+    "date": "2026-04-23",
+    "type": "EXPENSE",
+    "amount": 155.04,
+    "category": "Misc",
+    "remark": "Entry 112"
+  },
+  {
+    "date": "2026-04-24",
+    "type": "EXPENSE",
+    "amount": 156.41,
+    "category": "Misc",
+    "remark": "Entry 113"
+  },
+  {
+    "date": "2026-04-25",
+    "type": "EXPENSE",
+    "amount": 157.78,
+    "category": "Misc",
+    "remark": "Entry 114"
+  },
+  {
+    "date": "2026-04-26",
+    "type": "EXPENSE",
+    "amount": 159.15,
+    "category": "Misc",
+    "remark": "Entry 115"
+  },
+  {
+    "date": "2026-04-27",
+    "type": "EXPENSE",
+    "amount": 160.52,
+    "category": "Misc",
+    "remark": "Entry 116"
+  },
+  {
+    "date": "2026-04-28",
+    "type": "EXPENSE",
+    "amount": 161.89,
+    "category": "Misc",
+    "remark": "Entry 117"
+  },
+  {
+    "date": "2026-04-29",
+    "type": "EXPENSE",
+    "amount": 163.26,
+    "category": "Misc",
+    "remark": "Entry 118"
+  },
+  {
+    "date": "2026-04-30",
+    "type": "EXPENSE",
+    "amount": 164.63,
+    "category": "Misc",
+    "remark": "Entry 119"
+  },
+  {
+    "date": "2026-05-01",
+    "type": "EXPENSE",
+    "amount": 166,
+    "category": "Misc",
+    "remark": "Entry 120"
+  },
+  {
+    "date": "2026-05-02",
+    "type": "EXPENSE",
+    "amount": 167.37,
+    "category": "Misc",
+    "remark": "Entry 121"
+  },
+  {
+    "date": "2026-05-03",
+    "type": "EXPENSE",
+    "amount": 168.74,
+    "category": "Misc",
+    "remark": "Entry 122"
+  },
+  {
+    "date": "2026-05-04",
+    "type": "EXPENSE",
+    "amount": 170.11,
+    "category": "Misc",
+    "remark": "Entry 123"
+  },
+  {
+    "date": "2026-05-05",
+    "type": "EXPENSE",
+    "amount": 171.48,
+    "category": "Misc",
+    "remark": "Entry 124"
+  },
+  {
+    "date": "2026-05-06",
+    "type": "EXPENSE",
+    "amount": 172.85,
+    "category": "Misc",
+    "remark": "Entry 125"
+  },
+  {
+    "date": "2026-05-07",
+    "type": "EXPENSE",
+    "amount": 174.22,
+    "category": "Misc",
+    "remark": "Entry 126"
+  },
+  {
+    "date": "2026-05-08",
+    "type": "EXPENSE",
+    "amount": 175.59,
+    "category": "Misc",
+    "remark": "Entry 127"
+  },
+  {
+    "date": "2026-05-09",
+    "type": "EXPENSE",
+    "amount": 176.96,
+    "category": "Misc",
+    "remark": "Entry 128"
+  },
+  {
+    "date": "2026-05-10",
+    "type": "EXPENSE",
+    "amount": 178.33,
+    "category": "Misc",
+    "remark": "Entry 129"
+  },
+  {
+    "date": "2026-05-11",
+    "type": "EXPENSE",
+    "amount": 179.7,
+    "category": "Misc",
+    "remark": "Entry 130"
+  },
+  {
+    "date": "2026-05-12",
+    "type": "EXPENSE",
+    "amount": 181.07,
+    "category": "Misc",
+    "remark": "Entry 131"
+  },
+  {
+    "date": "2026-05-13",
+    "type": "EXPENSE",
+    "amount": 182.44,
+    "category": "Misc",
+    "remark": "Entry 132"
+  },
+  {
+    "date": "2026-05-14",
+    "type": "EXPENSE",
+    "amount": 183.81,
+    "category": "Misc",
+    "remark": "Entry 133"
+  },
+  {
+    "date": "2026-05-15",
+    "type": "EXPENSE",
+    "amount": 185.18,
+    "category": "Misc",
+    "remark": "Entry 134"
+  },
+  {
+    "date": "2026-05-16",
+    "type": "EXPENSE",
+    "amount": 186.55,
+    "category": "Misc",
+    "remark": "Entry 135"
+  },
+  {
+    "date": "2026-05-17",
+    "type": "EXPENSE",
+    "amount": 187.92,
+    "category": "Misc",
+    "remark": "Entry 136"
+  },
+  {
+    "date": "2026-05-18",
+    "type": "EXPENSE",
+    "amount": 189.29,
+    "category": "Misc",
+    "remark": "Entry 137"
+  },
+  {
+    "date": "2026-05-19",
+    "type": "EXPENSE",
+    "amount": 190.66,
+    "category": "Misc",
+    "remark": "Entry 138"
+  },
+  {
+    "date": "2026-05-20",
+    "type": "EXPENSE",
+    "amount": 192.03,
+    "category": "Misc",
+    "remark": "Entry 139"
+  },
+  {
+    "date": "2026-05-21",
+    "type": "EXPENSE",
+    "amount": 193.4,
+    "category": "Misc",
+    "remark": "Entry 140"
+  },
+  {
+    "date": "2026-05-22",
+    "type": "EXPENSE",
+    "amount": 194.77,
+    "category": "Misc",
+    "remark": "Entry 141"
+  },
+  {
+    "date": "2026-05-23",
+    "type": "EXPENSE",
+    "amount": 196.14,
+    "category": "Misc",
+    "remark": "Entry 142"
+  },
+  {
+    "date": "2026-05-24",
+    "type": "EXPENSE",
+    "amount": 197.51,
+    "category": "Misc",
+    "remark": "Entry 143"
+  },
+  {
+    "date": "2026-05-25",
+    "type": "EXPENSE",
+    "amount": 198.88,
+    "category": "Misc",
+    "remark": "Entry 144"
+  },
+  {
+    "date": "2026-05-26",
+    "type": "EXPENSE",
+    "amount": 200.25,
+    "category": "Misc",
+    "remark": "Entry 145"
+  },
+  {
+    "date": "2026-05-27",
+    "type": "EXPENSE",
+    "amount": 201.62,
+    "category": "Misc",
+    "remark": "Entry 146"
+  },
+  {
+    "date": "2026-05-28",
+    "type": "EXPENSE",
+    "amount": 202.99,
+    "category": "Misc",
+    "remark": "Entry 147"
+  },
+  {
+    "date": "2026-05-29",
+    "type": "EXPENSE",
+    "amount": 204.36,
+    "category": "Misc",
+    "remark": "Entry 148"
+  },
+  {
+    "date": "2026-05-30",
+    "type": "EXPENSE",
+    "amount": 205.73,
+    "category": "Misc",
+    "remark": "Entry 149"
+  },
+  {
+    "date": "2026-05-31",
+    "type": "EXPENSE",
+    "amount": 207.1,
+    "category": "Misc",
+    "remark": "Entry 150"
+  },
+  {
+    "date": "2026-06-01",
+    "type": "EXPENSE",
+    "amount": 208.47,
+    "category": "Misc",
+    "remark": "Entry 151"
+  },
+  {
+    "date": "2026-06-02",
+    "type": "EXPENSE",
+    "amount": 209.84,
+    "category": "Misc",
+    "remark": "Entry 152"
+  },
+  {
+    "date": "2026-06-03",
+    "type": "EXPENSE",
+    "amount": 211.21,
+    "category": "Misc",
+    "remark": "Entry 153"
+  },
+  {
+    "date": "2026-06-04",
+    "type": "EXPENSE",
+    "amount": 212.58,
+    "category": "Misc",
+    "remark": "Entry 154"
+  },
+  {
+    "date": "2026-06-05",
+    "type": "EXPENSE",
+    "amount": 213.95,
+    "category": "Misc",
+    "remark": "Entry 155"
+  },
+  {
+    "date": "2026-06-06",
+    "type": "EXPENSE",
+    "amount": 215.32,
+    "category": "Misc",
+    "remark": "Entry 156"
+  },
+  {
+    "date": "2026-06-07",
+    "type": "EXPENSE",
+    "amount": 216.69,
+    "category": "Misc",
+    "remark": "Entry 157"
+  },
+  {
+    "date": "2026-06-08",
+    "type": "EXPENSE",
+    "amount": 218.06,
+    "category": "Misc",
+    "remark": "Entry 158"
+  },
+  {
+    "date": "2026-06-09",
+    "type": "EXPENSE",
+    "amount": 219.43,
+    "category": "Misc",
+    "remark": "Entry 159"
+  },
+  {
+    "date": "2026-06-10",
+    "type": "EXPENSE",
+    "amount": 100,
+    "category": "Food",
+    "remark": "SS Biriyani"
+  },
+  {
+    "date": "2026-06-11",
+    "type": "EXPENSE",
+    "amount": 222.17,
+    "category": "Misc",
+    "remark": "Entry 161"
+  },
+  {
+    "date": "2026-06-12",
+    "type": "EXPENSE",
+    "amount": 223.54,
+    "category": "Misc",
+    "remark": "Entry 162"
+  },
+  {
+    "date": "2026-06-13",
+    "type": "EXPENSE",
+    "amount": 224.91,
+    "category": "Misc",
+    "remark": "Entry 163"
+  },
+  {
+    "date": "2026-06-14",
+    "type": "EXPENSE",
+    "amount": 226.28,
+    "category": "Misc",
+    "remark": "Entry 164"
+  },
+  {
+    "date": "2026-06-15",
+    "type": "EXPENSE",
+    "amount": 227.65,
+    "category": "Misc",
+    "remark": "Entry 165"
+  },
+  {
+    "date": "2026-06-16",
+    "type": "EXPENSE",
+    "amount": 229.02,
+    "category": "Misc",
+    "remark": "Entry 166"
+  },
+  {
+    "date": "2026-06-17",
+    "type": "EXPENSE",
+    "amount": 230.39,
+    "category": "Misc",
+    "remark": "Entry 167"
+  },
+  {
+    "date": "2026-06-18",
+    "type": "EXPENSE",
+    "amount": 231.76,
+    "category": "Misc",
+    "remark": "Entry 168"
+  },
+  {
+    "date": "2026-06-19",
+    "type": "EXPENSE",
+    "amount": 233.13,
+    "category": "Misc",
+    "remark": "Entry 169"
+  },
+  {
+    "date": "2026-06-20",
+    "type": "EXPENSE",
+    "amount": 234.5,
+    "category": "Misc",
+    "remark": "Entry 170"
+  },
+  {
+    "date": "2026-06-21",
+    "type": "EXPENSE",
+    "amount": 235.87,
+    "category": "Misc",
+    "remark": "Entry 171"
+  },
+  {
+    "date": "2026-06-22",
+    "type": "EXPENSE",
+    "amount": 237.24,
+    "category": "Misc",
+    "remark": "Entry 172"
+  },
+  {
+    "date": "2026-06-23",
+    "type": "EXPENSE",
+    "amount": 238.61,
+    "category": "Misc",
+    "remark": "Entry 173"
+  },
+  {
+    "date": "2026-06-24",
+    "type": "EXPENSE",
+    "amount": 239.98,
+    "category": "Misc",
+    "remark": "Entry 174"
+  },
+  {
+    "date": "2026-06-25",
+    "type": "EXPENSE",
+    "amount": 241.35,
+    "category": "Misc",
+    "remark": "Entry 175"
+  },
+  {
+    "date": "2026-06-26",
+    "type": "EXPENSE",
+    "amount": 242.72,
+    "category": "Misc",
+    "remark": "Entry 176"
+  },
+  {
+    "date": "2026-06-27",
+    "type": "EXPENSE",
+    "amount": 244.09,
+    "category": "Misc",
+    "remark": "Entry 177"
+  },
+  {
+    "date": "2026-06-28",
+    "type": "EXPENSE",
+    "amount": 245.46,
+    "category": "Misc",
+    "remark": "Entry 178"
+  },
+  {
+    "date": "2026-06-29",
+    "type": "EXPENSE",
+    "amount": 246.83,
+    "category": "Misc",
+    "remark": "Entry 179"
+  },
+  {
+    "date": "2026-06-30",
+    "type": "EXPENSE",
+    "amount": 248.2,
+    "category": "Misc",
+    "remark": "Entry 180"
+  },
+  {
+    "date": "2026-07-01",
+    "type": "EXPENSE",
+    "amount": 249.57,
+    "category": "Misc",
+    "remark": "Entry 181"
+  },
+  {
+    "date": "2026-07-02",
+    "type": "EXPENSE",
+    "amount": 250.94,
+    "category": "Misc",
+    "remark": "Entry 182"
+  },
+  {
+    "date": "2026-07-03",
+    "type": "EXPENSE",
+    "amount": 252.31,
+    "category": "Misc",
+    "remark": "Entry 183"
+  },
+  {
+    "date": "2026-07-04",
+    "type": "EXPENSE",
+    "amount": 253.68,
+    "category": "Misc",
+    "remark": "Entry 184"
+  },
+  {
+    "date": "2026-07-05",
+    "type": "EXPENSE",
+    "amount": 255.05,
+    "category": "Misc",
+    "remark": "Entry 185"
+  },
+  {
+    "date": "2026-07-06",
+    "type": "EXPENSE",
+    "amount": 256.42,
+    "category": "Misc",
+    "remark": "Entry 186"
+  },
+  {
+    "date": "2026-07-07",
+    "type": "EXPENSE",
+    "amount": 257.79,
+    "category": "Misc",
+    "remark": "Entry 187"
+  },
+  {
+    "date": "2026-07-08",
+    "type": "EXPENSE",
+    "amount": 259.16,
+    "category": "Misc",
+    "remark": "Entry 188"
+  },
+  {
+    "date": "2026-07-09",
+    "type": "EXPENSE",
+    "amount": 260.53,
+    "category": "Misc",
+    "remark": "Entry 189"
+  },
+  {
+    "date": "2026-07-10",
+    "type": "EXPENSE",
+    "amount": 261.9,
+    "category": "Misc",
+    "remark": "Entry 190"
+  },
+  {
+    "date": "2026-07-11",
+    "type": "EXPENSE",
+    "amount": 263.27,
+    "category": "Misc",
+    "remark": "Entry 191"
+  },
+  {
+    "date": "2026-07-12",
+    "type": "EXPENSE",
+    "amount": 264.64,
+    "category": "Misc",
+    "remark": "Entry 192"
+  },
+  {
+    "date": "2026-07-13",
+    "type": "EXPENSE",
+    "amount": 266.01,
+    "category": "Misc",
+    "remark": "Entry 193"
+  },
+  {
+    "date": "2026-07-14",
+    "type": "EXPENSE",
+    "amount": 267.38,
+    "category": "Misc",
+    "remark": "Entry 194"
+  },
+  {
+    "date": "2026-07-15",
+    "type": "EXPENSE",
+    "amount": 268.75,
+    "category": "Misc",
+    "remark": "Entry 195"
+  },
+  {
+    "date": "2026-07-16",
+    "type": "EXPENSE",
+    "amount": 270.12,
+    "category": "Misc",
+    "remark": "Entry 196"
+  },
+  {
+    "date": "2026-07-17",
+    "type": "EXPENSE",
+    "amount": 271.49,
+    "category": "Misc",
+    "remark": "Entry 197"
+  },
+  {
+    "date": "2026-07-18",
+    "type": "EXPENSE",
+    "amount": 272.86,
+    "category": "Misc",
+    "remark": "Entry 198"
+  },
+  {
+    "date": "2026-07-19",
+    "type": "EXPENSE",
+    "amount": 274.23,
+    "category": "Misc",
+    "remark": "Entry 199"
+  },
+  {
+    "date": "2026-07-20",
+    "type": "EXPENSE",
+    "amount": 275.6,
+    "category": "Misc",
+    "remark": "Entry 200"
+  },
+  {
+    "date": "2026-07-21",
+    "type": "EXPENSE",
+    "amount": 276.97,
+    "category": "Misc",
+    "remark": "Entry 201"
+  },
+  {
+    "date": "2026-07-22",
+    "type": "EXPENSE",
+    "amount": 278.34,
+    "category": "Misc",
+    "remark": "Entry 202"
+  },
+  {
+    "date": "2026-07-23",
+    "type": "EXPENSE",
+    "amount": 279.71,
+    "category": "Misc",
+    "remark": "Entry 203"
+  },
+  {
+    "date": "2026-07-24",
+    "type": "EXPENSE",
+    "amount": 281.08,
+    "category": "Misc",
+    "remark": "Entry 204"
+  },
+  {
+    "date": "2026-07-25",
+    "type": "EXPENSE",
+    "amount": 282.45,
+    "category": "Misc",
+    "remark": "Entry 205"
+  },
+  {
+    "date": "2026-07-26",
+    "type": "EXPENSE",
+    "amount": 283.82,
+    "category": "Misc",
+    "remark": "Entry 206"
+  },
+  {
+    "date": "2026-07-27",
+    "type": "EXPENSE",
+    "amount": 285.19,
+    "category": "Misc",
+    "remark": "Entry 207"
+  },
+  {
+    "date": "2026-07-28",
+    "type": "EXPENSE",
+    "amount": 286.56,
+    "category": "Misc",
+    "remark": "Entry 208"
+  },
+  {
+    "date": "2026-07-29",
+    "type": "EXPENSE",
+    "amount": 287.93,
+    "category": "Misc",
+    "remark": "Entry 209"
+  },
+  {
+    "date": "2026-07-30",
+    "type": "EXPENSE",
+    "amount": 289.3,
+    "category": "Misc",
+    "remark": "Entry 210"
+  },
+  {
+    "date": "2026-07-31",
+    "type": "EXPENSE",
+    "amount": 290.67,
+    "category": "Misc",
+    "remark": "Entry 211"
+  },
+  {
+    "date": "2026-08-01",
+    "type": "EXPENSE",
+    "amount": 292.04,
+    "category": "Misc",
+    "remark": "Entry 212"
+  },
+  {
+    "date": "2026-08-02",
+    "type": "EXPENSE",
+    "amount": 293.41,
+    "category": "Misc",
+    "remark": "Entry 213"
+  },
+  {
+    "date": "2026-08-03",
+    "type": "EXPENSE",
+    "amount": 294.78,
+    "category": "Misc",
+    "remark": "Entry 214"
+  },
+  {
+    "date": "2026-08-04",
+    "type": "EXPENSE",
+    "amount": 296.15,
+    "category": "Misc",
+    "remark": "Entry 215"
+  },
+  {
+    "date": "2026-08-05",
+    "type": "EXPENSE",
+    "amount": 297.52,
+    "category": "Misc",
+    "remark": "Entry 216"
+  },
+  {
+    "date": "2026-08-06",
+    "type": "EXPENSE",
+    "amount": 298.89,
+    "category": "Misc",
+    "remark": "Entry 217"
+  },
+  {
+    "date": "2026-08-07",
+    "type": "EXPENSE",
+    "amount": 300.26,
+    "category": "Misc",
+    "remark": "Entry 218"
+  },
+  {
+    "date": "2026-08-08",
+    "type": "EXPENSE",
+    "amount": 301.63,
+    "category": "Misc",
+    "remark": "Entry 219"
+  },
+  {
+    "date": "2026-08-09",
+    "type": "EXPENSE",
+    "amount": 303,
+    "category": "Misc",
+    "remark": "Entry 220"
+  },
+  {
+    "date": "2026-08-10",
+    "type": "EXPENSE",
+    "amount": 304.37,
+    "category": "Misc",
+    "remark": "Entry 221"
+  },
+  {
+    "date": "2026-08-11",
+    "type": "EXPENSE",
+    "amount": 305.74,
+    "category": "Misc",
+    "remark": "Entry 222"
+  },
+  {
+    "date": "2026-08-12",
+    "type": "EXPENSE",
+    "amount": 307.11,
+    "category": "Misc",
+    "remark": "Entry 223"
+  },
+  {
+    "date": "2026-08-13",
+    "type": "EXPENSE",
+    "amount": 89.5,
+    "category": "Movie",
+    "remark": "Ajmal DC"
+  },
+  {
+    "date": "2026-08-14",
+    "type": "EXPENSE",
+    "amount": 309.85,
+    "category": "Misc",
+    "remark": "Entry 225"
+  },
+  {
+    "date": "2026-08-15",
+    "type": "EXPENSE",
+    "amount": 311.22,
+    "category": "Misc",
+    "remark": "Entry 226"
+  },
+  {
+    "date": "2026-08-16",
+    "type": "EXPENSE",
+    "amount": 312.59,
+    "category": "Misc",
+    "remark": "Entry 227"
+  },
+  {
+    "date": "2026-08-17",
+    "type": "EXPENSE",
+    "amount": 313.96,
+    "category": "Misc",
+    "remark": "Entry 228"
+  },
+  {
+    "date": "2026-08-18",
+    "type": "EXPENSE",
+    "amount": 315.33,
+    "category": "Misc",
+    "remark": "Entry 229"
+  },
+  {
+    "date": "2026-08-19",
+    "type": "EXPENSE",
+    "amount": 316.7,
+    "category": "Misc",
+    "remark": "Entry 230"
+  },
+  {
+    "date": "2026-08-20",
+    "type": "EXPENSE",
+    "amount": 318.07,
+    "category": "Misc",
+    "remark": "Entry 231"
+  },
+  {
+    "date": "2026-08-21",
+    "type": "EXPENSE",
+    "amount": 319.44,
+    "category": "Misc",
+    "remark": "Entry 232"
+  },
+  {
+    "date": "2026-08-22",
+    "type": "EXPENSE",
+    "amount": 320.81,
+    "category": "Misc",
+    "remark": "Entry 233"
+  },
+  {
+    "date": "2026-08-23",
+    "type": "EXPENSE",
+    "amount": 322.18,
+    "category": "Misc",
+    "remark": "Entry 234"
+  },
+  {
+    "date": "2026-08-24",
+    "type": "EXPENSE",
+    "amount": 323.55,
+    "category": "Misc",
+    "remark": "Entry 235"
+  },
+  {
+    "date": "2026-08-25",
+    "type": "EXPENSE",
+    "amount": 324.92,
+    "category": "Misc",
+    "remark": "Entry 236"
+  },
+  {
+    "date": "2026-08-26",
+    "type": "EXPENSE",
+    "amount": 326.29,
+    "category": "Misc",
+    "remark": "Entry 237"
+  },
+  {
+    "date": "2026-08-27",
+    "type": "EXPENSE",
+    "amount": 327.66,
+    "category": "Misc",
+    "remark": "Entry 238"
+  },
+  {
+    "date": "2026-08-28",
+    "type": "EXPENSE",
+    "amount": 329.03,
+    "category": "Misc",
+    "remark": "Entry 239"
+  },
+  {
+    "date": "2026-08-29",
+    "type": "EXPENSE",
+    "amount": 330.4,
+    "category": "Misc",
+    "remark": "Entry 240"
+  },
+  {
+    "date": "2026-08-30",
+    "type": "EXPENSE",
+    "amount": 331.77,
+    "category": "Misc",
+    "remark": "Entry 241"
+  },
+  {
+    "date": "2026-08-31",
+    "type": "EXPENSE",
+    "amount": 333.14,
+    "category": "Misc",
+    "remark": "Entry 242"
+  },
+  {
+    "date": "2026-09-01",
+    "type": "EXPENSE",
+    "amount": 334.51,
+    "category": "Misc",
+    "remark": "Entry 243"
+  },
+  {
+    "date": "2026-09-02",
+    "type": "EXPENSE",
+    "amount": 335.88,
+    "category": "Misc",
+    "remark": "Entry 244"
+  },
+  {
+    "date": "2026-09-03",
+    "type": "EXPENSE",
+    "amount": 337.25,
+    "category": "Misc",
+    "remark": "Entry 245"
+  },
+  {
+    "date": "2026-09-04",
+    "type": "EXPENSE",
+    "amount": 338.62,
+    "category": "Misc",
+    "remark": "Entry 246"
+  },
+  {
+    "date": "2026-09-05",
+    "type": "EXPENSE",
+    "amount": 339.99,
+    "category": "Misc",
+    "remark": "Entry 247"
+  },
+  {
+    "date": "2026-09-06",
+    "type": "EXPENSE",
+    "amount": 341.36,
+    "category": "Misc",
+    "remark": "Entry 248"
+  },
+  {
+    "date": "2026-09-07",
+    "type": "EXPENSE",
+    "amount": 342.73,
+    "category": "Misc",
+    "remark": "Entry 249"
+  },
+  {
+    "date": "2026-09-08",
+    "type": "EXPENSE",
+    "amount": 344.1,
+    "category": "Misc",
+    "remark": "Entry 250"
+  },
+  {
+    "date": "2026-09-09",
+    "type": "EXPENSE",
+    "amount": 345.47,
+    "category": "Misc",
+    "remark": "Entry 251"
+  },
+  {
+    "date": "2026-09-10",
+    "type": "EXPENSE",
+    "amount": 346.84,
+    "category": "Misc",
+    "remark": "Entry 252"
+  },
+  {
+    "date": "2026-09-11",
+    "type": "EXPENSE",
+    "amount": 348.21,
+    "category": "Misc",
+    "remark": "Entry 253"
+  },
+  {
+    "date": "2026-09-12",
+    "type": "EXPENSE",
+    "amount": 349.58,
+    "category": "Misc",
+    "remark": "Entry 254"
+  },
+  {
+    "date": "2026-09-13",
+    "type": "EXPENSE",
+    "amount": 350.95,
+    "category": "Misc",
+    "remark": "Entry 255"
+  },
+  {
+    "date": "2026-09-14",
+    "type": "EXPENSE",
+    "amount": 352.32,
+    "category": "Misc",
+    "remark": "Entry 256"
+  },
+  {
+    "date": "2026-09-15",
+    "type": "EXPENSE",
+    "amount": 353.69,
+    "category": "Misc",
+    "remark": "Entry 257"
+  },
+  {
+    "date": "2026-09-16",
+    "type": "EXPENSE",
+    "amount": 355.06,
+    "category": "Misc",
+    "remark": "Entry 258"
+  },
+  {
+    "date": "2026-09-17",
+    "type": "EXPENSE",
+    "amount": 356.43,
+    "category": "Misc",
+    "remark": "Entry 259"
+  },
+  {
+    "date": "2026-09-18",
+    "type": "EXPENSE",
+    "amount": 357.8,
+    "category": "Misc",
+    "remark": "Entry 260"
+  },
+  {
+    "date": "2026-09-19",
+    "type": "EXPENSE",
+    "amount": 359.17,
+    "category": "Misc",
+    "remark": "Entry 261"
+  },
+  {
+    "date": "2026-09-20",
+    "type": "EXPENSE",
+    "amount": 360.54,
+    "category": "Misc",
+    "remark": "Entry 262"
+  },
+  {
+    "date": "2026-09-21",
+    "type": "EXPENSE",
+    "amount": 100,
+    "category": "Beauty",
+    "remark": "Haircut"
+  },
+  {
+    "date": "2026-09-22",
+    "type": "EXPENSE",
+    "amount": 363.28,
+    "category": "Misc",
+    "remark": "Entry 264"
+  },
+  {
+    "date": "2026-09-23",
+    "type": "EXPENSE",
+    "amount": 364.65,
+    "category": "Misc",
+    "remark": "Entry 265"
+  },
+  {
+    "date": "2026-09-24",
+    "type": "EXPENSE",
+    "amount": 366.02,
+    "category": "Misc",
+    "remark": "Entry 266"
+  },
+  {
+    "date": "2026-09-25",
+    "type": "EXPENSE",
+    "amount": 367.39,
+    "category": "Misc",
+    "remark": "Entry 267"
+  },
+  {
+    "date": "2026-09-26",
+    "type": "EXPENSE",
+    "amount": 368.76,
+    "category": "Misc",
+    "remark": "Entry 268"
+  },
+  {
+    "date": "2026-09-27",
+    "type": "EXPENSE",
+    "amount": 370.13,
+    "category": "Misc",
+    "remark": "Entry 269"
+  },
+  {
+    "date": "2026-09-28",
+    "type": "EXPENSE",
+    "amount": 371.5,
+    "category": "Misc",
+    "remark": "Entry 270"
+  },
+  {
+    "date": "2026-09-29",
+    "type": "EXPENSE",
+    "amount": 372.87,
+    "category": "Misc",
+    "remark": "Entry 271"
+  },
+  {
+    "date": "2026-09-30",
+    "type": "EXPENSE",
+    "amount": 374.24,
+    "category": "Misc",
+    "remark": "Entry 272"
+  },
+  {
+    "date": "2026-10-01",
+    "type": "EXPENSE",
+    "amount": 375.61,
+    "category": "Misc",
+    "remark": "Entry 273"
+  },
+  {
+    "date": "2026-10-02",
+    "type": "EXPENSE",
+    "amount": 376.98,
+    "category": "Misc",
+    "remark": "Entry 274"
+  },
+  {
+    "date": "2026-10-03",
+    "type": "EXPENSE",
+    "amount": 378.35,
+    "category": "Misc",
+    "remark": "Entry 275"
+  },
+  {
+    "date": "2026-10-04",
+    "type": "EXPENSE",
+    "amount": 379.72,
+    "category": "Misc",
+    "remark": "Entry 276"
+  },
+  {
+    "date": "2026-10-05",
+    "type": "EXPENSE",
+    "amount": 381.09,
+    "category": "Misc",
+    "remark": "Entry 277"
+  },
+  {
+    "date": "2026-10-06",
+    "type": "EXPENSE",
+    "amount": 382.46,
+    "category": "Misc",
+    "remark": "Entry 278"
+  },
+  {
+    "date": "2026-10-07",
+    "type": "EXPENSE",
+    "amount": 383.83,
+    "category": "Misc",
+    "remark": "Entry 279"
+  },
+  {
+    "date": "2026-10-08",
+    "type": "EXPENSE",
+    "amount": 385.2,
+    "category": "Misc",
+    "remark": "Entry 280"
+  },
+  {
+    "date": "2026-10-09",
+    "type": "EXPENSE",
+    "amount": 386.57,
+    "category": "Misc",
+    "remark": "Entry 281"
+  },
+  {
+    "date": "2026-10-10",
+    "type": "EXPENSE",
+    "amount": 387.94,
+    "category": "Misc",
+    "remark": "Entry 282"
+  },
+  {
+    "date": "2026-10-11",
+    "type": "EXPENSE",
+    "amount": 389.31,
+    "category": "Misc",
+    "remark": "Entry 283"
+  },
+  {
+    "date": "2026-10-12",
+    "type": "EXPENSE",
+    "amount": 390.68,
+    "category": "Misc",
+    "remark": "Entry 284"
+  },
+  {
+    "date": "2026-10-13",
+    "type": "EXPENSE",
+    "amount": 392.05,
+    "category": "Misc",
+    "remark": "Entry 285"
+  },
+  {
+    "date": "2026-10-14",
+    "type": "EXPENSE",
+    "amount": 393.42,
+    "category": "Misc",
+    "remark": "Entry 286"
+  },
+  {
+    "date": "2026-10-15",
+    "type": "EXPENSE",
+    "amount": 394.79,
+    "category": "Misc",
+    "remark": "Entry 287"
+  },
+  {
+    "date": "2026-10-16",
+    "type": "EXPENSE",
+    "amount": 396.16,
+    "category": "Misc",
+    "remark": "Entry 288"
+  },
+  {
+    "date": "2026-10-17",
+    "type": "EXPENSE",
+    "amount": 397.53,
+    "category": "Misc",
+    "remark": "Entry 289"
+  },
+  {
+    "date": "2026-10-18",
+    "type": "EXPENSE",
+    "amount": 398.9,
+    "category": "Misc",
+    "remark": "Entry 290"
+  },
+  {
+    "date": "2026-10-19",
+    "type": "EXPENSE",
+    "amount": 400.27,
+    "category": "Misc",
+    "remark": "Entry 291"
+  },
+  {
+    "date": "2026-10-20",
+    "type": "EXPENSE",
+    "amount": 401.64,
+    "category": "Misc",
+    "remark": "Entry 292"
+  },
+  {
+    "date": "2026-10-21",
+    "type": "EXPENSE",
+    "amount": 403.01,
+    "category": "Misc",
+    "remark": "Entry 293"
+  },
+  {
+    "date": "2026-10-22",
+    "type": "EXPENSE",
+    "amount": 404.38,
+    "category": "Misc",
+    "remark": "Entry 294"
+  },
+  {
+    "date": "2026-10-23",
+    "type": "EXPENSE",
+    "amount": 405.75,
+    "category": "Misc",
+    "remark": "Entry 295"
+  },
+  {
+    "date": "2026-10-24",
+    "type": "EXPENSE",
+    "amount": 407.12,
+    "category": "Misc",
+    "remark": "Entry 296"
+  },
+  {
+    "date": "2026-10-25",
+    "type": "EXPENSE",
+    "amount": 408.49,
+    "category": "Misc",
+    "remark": "Entry 297"
+  },
+  {
+    "date": "2026-10-26",
+    "type": "EXPENSE",
+    "amount": 409.86,
+    "category": "Misc",
+    "remark": "Entry 298"
+  },
+  {
+    "date": "2026-10-27",
+    "type": "EXPENSE",
+    "amount": 411.23,
+    "category": "Misc",
+    "remark": "Entry 299"
+  },
+  {
+    "date": "2026-10-28",
+    "type": "EXPENSE",
+    "amount": 412.6,
+    "category": "Misc",
+    "remark": "Entry 300"
+  },
+  {
+    "date": "2026-10-29",
+    "type": "EXPENSE",
+    "amount": 413.97,
+    "category": "Misc",
+    "remark": "Entry 301"
+  },
+  {
+    "date": "2026-10-30",
+    "type": "EXPENSE",
+    "amount": 415.34,
+    "category": "Misc",
+    "remark": "Entry 302"
+  },
+  {
+    "date": "2026-10-31",
+    "type": "EXPENSE",
+    "amount": 416.71,
+    "category": "Misc",
+    "remark": "Entry 303"
+  },
+  {
+    "date": "2026-11-01",
+    "type": "EXPENSE",
+    "amount": 50,
+    "category": "Tea",
+    "remark": "T20"
+  },
+  {
+    "date": "2026-11-01",
+    "type": "EXPENSE",
+    "amount": 5000,
+    "category": "Social",
+    "remark": "Vappa"
+  },
+  {
+    "date": "2026-11-02",
+    "type": "EXPENSE",
+    "amount": 419.45,
+    "category": "Misc",
+    "remark": "Entry 305"
+  },
+  {
+    "date": "2026-11-03",
+    "type": "EXPENSE",
+    "amount": 420.82,
+    "category": "Misc",
+    "remark": "Entry 306"
+  },
+  {
+    "date": "2026-11-04",
+    "type": "EXPENSE",
+    "amount": 422.19,
+    "category": "Misc",
+    "remark": "Entry 307"
+  },
+  {
+    "date": "2026-11-05",
+    "type": "EXPENSE",
+    "amount": 423.56,
+    "category": "Misc",
+    "remark": "Entry 308"
+  },
+  {
+    "date": "2026-11-06",
+    "type": "EXPENSE",
+    "amount": 424.93,
+    "category": "Misc",
+    "remark": "Entry 309"
+  },
+  {
+    "date": "2026-11-07",
+    "type": "EXPENSE",
+    "amount": 426.3,
+    "category": "Misc",
+    "remark": "Entry 310"
+  },
+  {
+    "date": "2026-11-08",
+    "type": "EXPENSE",
+    "amount": 427.67,
+    "category": "Misc",
+    "remark": "Entry 311"
+  },
+  {
+    "date": "2026-11-09",
+    "type": "EXPENSE",
+    "amount": 429.04,
+    "category": "Misc",
+    "remark": "Entry 312"
+  },
+  {
+    "date": "2026-11-10",
+    "type": "EXPENSE",
+    "amount": 430.41,
+    "category": "Misc",
+    "remark": "Entry 313"
+  },
+  {
+    "date": "2026-11-11",
+    "type": "EXPENSE",
+    "amount": 431.78,
+    "category": "Misc",
+    "remark": "Entry 314"
+  },
+  {
+    "date": "2026-11-12",
+    "type": "EXPENSE",
+    "amount": 433.15,
+    "category": "Misc",
+    "remark": "Entry 315"
+  },
+  {
+    "date": "2026-11-13",
+    "type": "EXPENSE",
+    "amount": 434.52,
+    "category": "Misc",
+    "remark": "Entry 316"
+  },
+  {
+    "date": "2026-11-14",
+    "type": "EXPENSE",
+    "amount": 435.89,
+    "category": "Misc",
+    "remark": "Entry 317"
+  },
+  {
+    "date": "2026-11-15",
+    "type": "EXPENSE",
+    "amount": 437.26,
+    "category": "Misc",
+    "remark": "Entry 318"
+  },
+  {
+    "date": "2026-11-01",
+    "type": "EXPENSE",
+    "amount": 50,
+    "category": "Social",
+    "remark": "Ashhad"
+  },
+  {
+    "date": "2026-11-01",
+    "type": "EXPENSE",
+    "amount": 5000,
+    "category": "Social",
+    "remark": "Yasar Mama"
+  },
+  {
+    "date": "2026-09-21",
+    "type": "EXPENSE",
+    "amount": 100,
+    "category": "Petrol",
+    "remark": ""
+  },
+  {
+    "date": "2026-08-13",
+    "type": "EXPENSE",
+    "amount": 89.5,
+    "category": "Movie",
+    "remark": "DC"
+  },
+  {
+    "date": "2026-06-10",
+    "type": "EXPENSE",
+    "amount": 100,
+    "category": "Repairs",
+    "remark": "Puncture"
+  }
+]

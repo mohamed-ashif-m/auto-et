@@ -89,6 +89,17 @@ public final class BudgetAlerts {
         db.kvDao().put(entry);
     }
 
+    /** Idempotent: create the channel once at app start, never recreate per alert. */
+    public static void ensureChannel(Context context) {
+        if (Build.VERSION.SDK_INT < 26) return;
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        if (manager == null || manager.getNotificationChannel(CHANNEL_ID) != null) return;
+        NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID, "Budget alerts", NotificationManager.IMPORTANCE_HIGH);
+        channel.setDescription("Reminders when your monthly budget is running low");
+        manager.createNotificationChannel(channel);
+    }
+
     private static void notifyUser(Context context, int level, long leftPaise, long budgetPaise) {
         if (Build.VERSION.SDK_INT >= 33
                 && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
@@ -97,13 +108,7 @@ public final class BudgetAlerts {
             return;
         }
 
-        if (Build.VERSION.SDK_INT >= 26) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID, "Budget alerts", NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("Reminders when your monthly budget is running low");
-            NotificationManager manager = context.getSystemService(NotificationManager.class);
-            if (manager != null) manager.createNotificationChannel(channel);
-        }
+        ensureChannel(context);
 
         String title;
         String text;

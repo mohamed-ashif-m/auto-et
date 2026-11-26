@@ -43,13 +43,15 @@ export function DonutChart({
   const total = slices.reduce((a, s) => a + s.value, 0)
   const current = slices.find((s) => s.key === active)
 
-  let angle = -Math.PI / 2
-  const arcs = slices.map((s) => {
-    const sweep = total > 0 ? (s.value / total) * Math.PI * 2 : 0
-    const arc = { slice: s, a0: angle, a1: angle + sweep, full: slices.length === 1 }
-    angle += sweep
-    return arc
-  })
+  const arcs = slices.reduce<Array<{ slice: DonutSlice; a0: number; a1: number; full: boolean }>>(
+    (list, s) => {
+      const sweep = total > 0 ? (s.value / total) * Math.PI * 2 : 0
+      const a0 = list.length ? list[list.length - 1].a1 : -Math.PI / 2
+      list.push({ slice: s, a0, a1: a0 + sweep, full: slices.length === 1 })
+      return list
+    },
+    [],
+  )
 
   return (
     <div className="donut">

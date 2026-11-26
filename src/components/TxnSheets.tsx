@@ -18,11 +18,12 @@ export function TxnFormSheet({ initial, onClose }: { initial?: Transaction; onCl
   const [category, setCategory] = useState(initial?.category ?? 'Other')
   const [touched, setTouched] = useState(!!initial)
   const [note, setNote] = useState(initial?.note ?? '')
-  const [date, setDate] = useState(toDateInput(initial?.transactionTime ?? Date.now()))
+  const [now] = useState(() => Date.now())
+  const [date, setDate] = useState(toDateInput(initial?.transactionTime ?? now))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const today = toDateInput(Date.now())
+  const today = toDateInput(now)
 
   // Auto-pick a category from the user's own smart rules while they type.
   const onMerchant = (value: string) => {

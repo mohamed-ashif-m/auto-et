@@ -47,9 +47,10 @@ export function Home({
   const sum = useMemo(() => summarize(rows), [rows])
   const top = useMemo(() => byCategory(rows).slice(0, 5), [rows])
 
+  const [now] = useState(() => Date.now())
   const budget = settings.monthlyBudget
   const left = budget - sum.expense
-  const daysLeft = Math.max(1, Math.ceil((range.end - Date.now()) / 86400000))
+  const daysLeft = Math.max(1, Math.ceil((range.end - now) / 86400000))
 
   const heroLabel = budget > 0 ? (left >= 0 ? 'Left to spend' : 'Over budget by') : 'Balance this month'
   const heroValue = budget > 0 ? Math.abs(left) : sum.net

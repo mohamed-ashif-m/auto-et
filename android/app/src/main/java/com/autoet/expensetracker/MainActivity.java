@@ -17,6 +17,9 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(TransactionPlugin.class);
         super.onCreate(savedInstanceState);
 
+        // Create the local-notification channel once, not on every SMS alert.
+        BudgetAlerts.ensureChannel(this);
+
         // Android 13+ needs a runtime grant before budget alerts can be shown.
         if (Build.VERSION.SDK_INT >= 33
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)

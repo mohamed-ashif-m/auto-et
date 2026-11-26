@@ -5,17 +5,33 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Capacitor looks plugins up by @CapacitorPlugin(name=...) and invokes
+# @PluginMethod methods reflectively from JavaScript.
+-keepattributes *Annotation*, InnerClasses, Signature, Exceptions, EnclosingMethod
+-keep @interface com.getcapacitor.annotation.CapacitorPlugin
+-keep @interface com.getcapacitor.PluginMethod
+-keep class * extends com.getcapacitor.Plugin { *; }
+-keepclasseswithmembernames class * {
+    @com.getcapacitor.PluginMethod <methods>;
+}
+-keep class com.getcapacitor.** { *; }
+-keep class com.autoet.expensetracker.** { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Room builds DAO / database implementations at compile time; entities and
+# DAOs must survive shrinking for those generated classes to work.
+-keep class * extends androidx.room.RoomDatabase { *; }
+-keep class androidx.room.** { *; }
+-keep @interface androidx.room.Dao
+-keep class * {
+    @androidx.room.Dao *;
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# SQLCipher's native library and SupportOpenHelperFactory are used reflectively.
+-keep class net.zetetic.database.sqlcipher.** { *; }
+-keep class androidx.sqlite.db.** { *; }
+-dontwarn net.zetetic.**
+-dontwarn android.support.**
+
+# Keep source file names in stack traces for device debugging.
+-keepattributes SourceFile, LineNumberTable
+-renamesourcefileattribute SourceFile

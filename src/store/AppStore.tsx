@@ -1,3 +1,5 @@
+/* This module intentionally exports the provider plus its hooks/helpers. */
+/* eslint-disable react-refresh/only-export-components */
 import {
   createContext,
   useCallback,
@@ -8,12 +10,14 @@ import {
   useState,
 } from 'react'
 import type { ReactNode } from 'react'
+import type { PluginListenerHandle } from '@capacitor/core'
 import TransactionPlugin from '../plugins/transactionPlugin'
 import type { TransactionInput } from '../plugins/transactionPlugin'
 import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS, ACCENTS, FALLBACK_CATEGORY, COLOR_LIST } from '../lib/defaults'
 import { money, moneyShort } from '../lib/format'
 import { toCsv } from '../lib/analytics'
 import type { ImportRow } from '../lib/csv'
+import { dedupeRows, transactionsFingerprint } from '../lib/importDedupe'
 import type { Category, Loan, Rule, Settings, Transaction } from '../lib/types'
 
 const CACHE_KEY = 'autoet.settings.cache'
@@ -43,7 +47,6 @@ interface Store {
   settings: Settings
   rules: Rule[]
   loans: Loan[]
-  toast: Toast | null
   autoTrackOn: boolean | null
   introOpen: boolean
   openIntro: () => void
@@ -65,12 +68,31 @@ interface Store {
   clearAll: () => Promise<void>
   exportData: () => Promise<void>
   refreshAutoTrack: () => Promise<void>
-    importTransactions: (rows: ImportRow[]) => Promise<{ added: number; duplicates: number; failed: number }>
+  importTransactions: (
+    rows: ImportRow[],
+  ) => Promise<{ added: number; duplicates: number; failed: number; duplicateRows: ImportRow[] }>
   openAutoTrackSettings: () => Promise<void>
   notify: (text: string, tone?: 'ok' | 'error') => void
 }
 
 const StoreContext = createContext<Store | null>(null)
+
+/* Toasts live in their own context: showing one must not re-render every screen. */
+const ToastContext = createContext<Toast | null>(null)
+
+export function useToast(): Toast | null {
+  return useContext(ToastContext)
+}
+
+export function ToastHost() {
+  const toast = useToast()
+  if (!toast) return null
+  return (
+    <div key={toast.id} className={`toast ${toast.tone}`} role="status">
+      {toast.text}
+    </div>
+  )
+}
 
 function mergeSettings(saved: Partial<Settings> | null): Settings {
   const merged: Settings = { ...DEFAULT_SETTINGS, ...(saved ?? {}) }
@@ -106,6 +128,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<Toast | null>(null)
   const [autoTrackOn, setAutoTrackOn] = useState<boolean | null>(null)
   const settingsLoaded = useRef(false)
+  const firstLoadDone = useRef(false)
   // First launch ever: open the welcome tour straight away (no flash of the empty app).
   const [introOpen, setIntroOpen] = useState(() => !hasSeenIntro())
 
@@ -148,17 +171,39 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [toast])
 
   /* ---------- transactions ---------- */
+  const fingerprint = useRef(transactionsFingerprint([]))
+  const refreshInFlight = useRef<Promise<void> | null>(null)
+
   const refresh = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true)
+    // Coalesce simultaneous triggers (focus + visibilitychange, native event +
+    // resume) into a single bridge / SQLCipher read.
+    if (refreshInFlight.current) {
+      await refreshInFlight.current
+      return
+    }
+    const task = (async () => {
+      if (!silent) setLoading(true)
+      try {
+        const result = await TransactionPlugin.getTransactions()
+        const next = result.transactions ?? []
+        const nextFingerprint = transactionsFingerprint(next)
+        if (nextFingerprint !== fingerprint.current) {
+          fingerprint.current = nextFingerprint
+          setTransactions(next)
+        }
+        setError('')
+      } catch (err) {
+        console.error('Transaction loading failed:', err)
+        if (!silent) setError('Unable to load transactions. Please try again.')
+      } finally {
+        if (!silent) setLoading(false)
+      }
+    })()
+    refreshInFlight.current = task
     try {
-      const result = await TransactionPlugin.getTransactions()
-      setTransactions(result.transactions)
-      setError('')
-    } catch (err) {
-      console.error('Transaction loading failed:', err)
-      if (!silent) setError('Unable to load transactions. Please try again.')
+      await task
     } finally {
-      if (!silent) setLoading(false)
+      refreshInFlight.current = null
     }
   }, [])
 
@@ -200,26 +245,55 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
     })()
     void refresh()
-    void refreshAutoTrack()
+    void Promise.resolve().then(refreshAutoTrack)
+    firstLoadDone.current = true
   }, [refresh, refreshAutoTrack])
 
-  // New SMS transactions arrive while the app is open or in the background.
+  // The native listener inserts SMS transactions even when the WebView is
+  // paused. It pushes an event; there is no polling while the app is idle.
   useEffect(() => {
-    const wake = () => {
-      if (document.visibilityState === 'visible') {
-        void refresh(true)
-        void refreshAutoTrack()
-      }
-    }
-    document.addEventListener('visibilitychange', wake)
-    window.addEventListener('focus', wake)
-    const timer = window.setInterval(wake, 15000)
+    let cancelled = false
+    let handle: PluginListenerHandle | null = null
+    void TransactionPlugin.addListener('transactionsChanged', () => {
+      if (document.visibilityState !== 'visible') return // the resume handler will read it
+      void refresh(true)
+    })
+      .then((h) => {
+        if (cancelled) void h.remove()
+        else handle = h
+      })
+      .catch((err: unknown) => console.error('Transaction event registration failed:', err))
     return () => {
-      document.removeEventListener('visibilitychange', wake)
-      window.removeEventListener('focus', wake)
-      window.clearInterval(timer)
+      cancelled = true
+      if (handle) void handle.remove()
     }
+  }, [refresh])
+
+  // Resume / visibility are the only time-driven refreshes, and they are
+  // coalesced by a single one-shot timer plus the in-flight guard in refresh.
+  const wakeTimer = useRef<number | null>(null)
+  const wake = useCallback(() => {
+    if (!firstLoadDone.current || document.visibilityState !== 'visible') return
+    if (wakeTimer.current !== null) return
+    wakeTimer.current = window.setTimeout(() => {
+      wakeTimer.current = null
+      void refresh(true)
+      void refreshAutoTrack()
+    }, 120)
   }, [refresh, refreshAutoTrack])
+
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') wake()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('focus', wake)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('focus', wake)
+      if (wakeTimer.current !== null) window.clearTimeout(wakeTimer.current)
+    }
+  }, [wake])
 
   const addTransaction = useCallback(
     async (input: TransactionInput) => {
@@ -349,14 +423,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       fileName: `auto-et-${stamp}.csv`,
     })
   }, [transactions])
-    /** Adds parsed CSV rows, skipping ones that already exist and creating unknown categories. */
+
+  /** Adds parsed rows that are not exact matches already in the database. */
   const importTransactions = useCallback(
     async (rows: ImportRow[]) => {
-      const keyOf = (time: number, paise: number, type: string, merchant: string) =>
-        `${time}|${paise}|${type}|${merchant.trim().toLowerCase()}`
-      const known = new Set(
-        transactions.map((t) => keyOf(t.transactionTime, t.amountPaise, t.type, t.merchant || '')),
-      )
+      const { accepted, duplicates } = dedupeRows(transactions, rows)
 
       // Match categories case-insensitively; anything new becomes a custom category.
       const categories = [...settings.categories]
@@ -369,20 +440,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return name
       }
 
-      let added = 0
-      let duplicates = 0
       let failed = 0
-
-      for (const row of rows) {
-        const key = keyOf(row.transactionTime, row.amountPaise, row.type, row.merchant)
-        if (known.has(key)) {
-          duplicates += 1
-          continue
-        }
+      for (const row of accepted) {
         try {
           await TransactionPlugin.addTransaction({ ...row, category: resolve(row.category) })
-          known.add(key)
-          added += 1
         } catch (err) {
           console.error('Import row failed:', err)
           failed += 1
@@ -392,10 +453,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (categories.length !== settings.categories.length) patchSettings({ categories })
       await refresh(true)
       void TransactionPlugin.checkBudgetAlert().catch(() => {})
-      return { added, duplicates, failed }
+      return {
+        added: accepted.length - failed,
+        duplicates: duplicates.length,
+        failed,
+        duplicateRows: duplicates,
+      }
     },
     [transactions, settings.categories, patchSettings, refresh],
   )
+
   const openAutoTrackSettings = useCallback(async () => {
     await TransactionPlugin.openNotificationAccessSettings()
   }, [])
@@ -415,39 +482,53 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [settings.hideAmounts],
   )
 
-  const value: Store = {
-    transactions,
-    loading,
-    error,
-    settings,
-    rules,
-    loans,
-    toast,
-    autoTrackOn,
-    introOpen,
-    openIntro,
-    finishIntro,
-    fmt,
-    fmtShort,
-    catOf,
-    refresh,
-    addTransaction,
-    updateTransaction,
-    deleteTransaction,
-    patchSettings,
-    saveRules,
-    saveLoans,
-    saveCategory,
-    deleteCategory,
-    clearAll,
-    exportData,
-    importTransactions,
-    refreshAutoTrack,
-    openAutoTrackSettings,
-    notify,
-  }
+  const value = useMemo<Store>(
+    () => ({
+      transactions,
+      loading,
+      error,
+      settings,
+      rules,
+      loans,
+      autoTrackOn,
+      introOpen,
+      openIntro,
+      finishIntro,
+      fmt,
+      fmtShort,
+      catOf,
+      refresh,
+      addTransaction,
+      updateTransaction,
+      deleteTransaction,
+      patchSettings,
+      saveRules,
+      saveLoans,
+      saveCategory,
+      deleteCategory,
+      clearAll,
+      exportData,
+      importTransactions,
+      refreshAutoTrack,
+      openAutoTrackSettings,
+      notify,
+    }),
+    [
+      transactions, loading, error, settings, rules, loans, autoTrackOn, introOpen,
+      openIntro, finishIntro, fmt, fmtShort, catOf, refresh, addTransaction,
+      updateTransaction, deleteTransaction, patchSettings, saveRules, saveLoans,
+      saveCategory, deleteCategory, clearAll, exportData, importTransactions,
+      refreshAutoTrack, openAutoTrackSettings, notify,
+    ],
+  )
 
-  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
+  const toastValue = useMemo(() => toast, [toast])
+
+  return (
+    <StoreContext.Provider value={value}>
+      <ToastContext.Provider value={toastValue}>{children}</ToastContext.Provider>
+    </StoreContext.Provider>
+  )
 }
 
 export function useStore(): Store {

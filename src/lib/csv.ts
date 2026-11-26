@@ -71,9 +71,12 @@ const ALIASES: Record<string, string[]> = {
   amount: ['amount', 'amount inr', 'amount rs', 'value', 'transaction amount'],
   debit: ['debit', 'withdrawal', 'withdrawal amt', 'withdrawals', 'paid out', 'dr'],
   credit: ['credit', 'deposit', 'deposit amt', 'deposits', 'paid in', 'cr'],
-  merchant: ['merchant', 'description', 'payee', 'narration', 'particulars', 'details', 'name', 'title', 'paid to'],
+  merchant: [
+    'merchant', 'description', 'payee', 'narration', 'particulars', 'details',
+    'name', 'title', 'paid to', 'remark', 'remarks',
+  ],
   category: ['category'],
-  note: ['note', 'notes', 'memo', 'remarks', 'comment'],
+  note: ['note', 'notes', 'memo', 'comment'],
 }
 
 const normalise = (h: string) => h.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
@@ -178,6 +181,9 @@ export function parseTransactionsCsv(text: string): ParseResult {
   const rows: ImportRow[] = []
   let skipped = 0
   const cell = (r: string[], field: string) => (field in cols ? r[cols[field]] : undefined)
+  const merchantFromNote = !('merchant' in cols) && 'note' in cols
+  const merchantFromRemark = 'merchant' in cols
+    && ['remark', 'remarks'].includes(normalise(table[0][cols.merchant] ?? ''))
 
   for (const r of table.slice(1)) {
     const when = parseDate(cell(r, 'date'))
@@ -201,14 +207,123 @@ export function parseTransactionsCsv(text: string): ParseResult {
     // An explicit Type column wins; otherwise the sign decides (negative = spent).
     if (!type) type = signed < 0 ? 'EXPENSE' : 'INCOME'
 
-    const merchant = (cell(r, 'merchant') ?? '').trim().slice(0, 60) || 'Imported transaction'
-    const note = (cell(r, 'note') ?? '').trim().slice(0, 200)
+    const category = (cell(r, 'category') ?? '').trim()
+    const merchantCell = (cell(r, 'merchant') ?? '').trim()
+    const noteCell = (cell(r, 'note') ?? '').trim()
+    // remark(s) is a merchant; if there is no merchant-like column, fall back
+    // to note, then to the category. "Imported transaction" is a last resort.
+    const merchant =
+      merchantCell.slice(0, 60) ||
+      (merchantFromNote ? noteCell.slice(0, 60) : '') ||
+      category.slice(0, 60) ||
+      'Imported transaction'
+    // Preserve the remark as a note too: that is how earlier imports stored it.
+    const note = (
+      noteCell || ((merchantFromRemark && merchantCell) || merchantFromNote ? merchant : '')
+    ).slice(0, 200)
     rows.push({
       amountPaise: Math.abs(signed),
       merchant,
       type,
-      category: (cell(r, 'category') ?? '').trim(),
+      category,
       note: note || undefined,
+      transactionTime: when,
+    })
+  }
+
+  const errors = rows.length === 0 ? ['No valid rows found — check the date and amount formats.'] : []
+  return { rows, skipped, errors }
+}
+
+/* ---------- direct JSON import (same ImportRow pipeline as CSV) ---------- */
+
+type JsonRecord = Record<string, unknown>
+
+const JSON_FIELDS = {
+  date: ['date', 'time', 'datetime', 'transaction date', 'transactionDate', 'txnDate', 'timestamp', 'posted'],
+  amount: ['amount', 'amount inr', 'value', 'transaction amount', 'transactionAmount'],
+  amountPaise: ['amountPaise', 'amount_paise'],
+  type: ['type', 'transaction type', 'transactionType', 'txnType', 'dr cr'],
+  category: ['category'],
+  merchant: [
+    'merchant', 'payee', 'description', 'narration', 'particulars', 'details',
+    'name', 'title', 'paid to', 'remark', 'remarks',
+  ],
+  note: ['note', 'notes', 'memo', 'comment'],
+}
+
+function pickValue(record: JsonRecord, names: string[]): unknown {
+  for (const name of names) {
+    const value = record[name]
+    if (value === undefined || value === null) continue
+    if (typeof value === 'string' && !value.trim()) continue
+    return value
+  }
+  return undefined
+}
+
+const asText = (value: unknown): string =>
+  typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''
+
+/** Accepts a plain array of objects or `{ "transactions": [...] }`. */
+export function parseTransactionsJson(text: string): ParseResult {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(text)
+  } catch {
+    return { rows: [], skipped: 0, errors: ['That file is not valid JSON.'] }
+  }
+
+  const source: unknown[] | null = Array.isArray(parsed)
+    ? parsed
+    : parsed && typeof parsed === 'object' && Array.isArray((parsed as JsonRecord).transactions)
+      ? (parsed as JsonRecord).transactions as unknown[]
+      : null
+  if (!source || source.length === 0) {
+    return { rows: [], skipped: 0, errors: ['That JSON file has no transactions array.'] }
+  }
+
+  const rows: ImportRow[] = []
+  let skipped = 0
+  for (const item of source) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      skipped += 1
+      continue
+    }
+    const record = item as JsonRecord
+    const dateValue = pickValue(record, JSON_FIELDS.date)
+    const when = typeof dateValue === 'number'
+      ? dateValue
+      : parseDate(asText(dateValue) || (dateValue instanceof Date ? dateValue.toISOString() : ''))
+    const paiseValue = pickValue(record, JSON_FIELDS.amountPaise)
+    const signed = paiseValue !== undefined
+      ? Math.round(Number(paiseValue))
+      : parseAmount(asText(pickValue(record, JSON_FIELDS.amount)))
+
+    if (when === null || signed === null || !Number.isFinite(signed) || signed === 0) {
+      skipped += 1
+      continue
+    }
+
+    let type = parseType(asText(pickValue(record, JSON_FIELDS.type)))
+    if (!type) type = signed < 0 ? 'EXPENSE' : 'INCOME'
+
+    const category = asText(pickValue(record, JSON_FIELDS.category))
+    const remarkValue = pickValue(record, ['remark', 'remarks'])
+    const noteValue = pickValue(record, JSON_FIELDS.note)
+    const merchant =
+      asText(pickValue(record, JSON_FIELDS.merchant)) ||
+      asText(noteValue) ||
+      category.slice(0, 60) ||
+      'Imported transaction'
+    const note = asText(noteValue) || (remarkValue !== undefined ? asText(remarkValue) : '')
+
+    rows.push({
+      amountPaise: Math.abs(signed),
+      merchant: merchant.slice(0, 60),
+      type,
+      category,
+      note: note.slice(0, 200) || undefined,
       transactionTime: when,
     })
   }

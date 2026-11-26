@@ -265,7 +265,7 @@
   height: 180px;
 }
 
-.mk-logo {
+.intro .mk-logo {
   display: grid;
   place-items: center;
   width: 112px;
@@ -360,7 +360,7 @@
   opacity: 0.7;
 }
 
-.mk-arrow {
+.intro .mk-arrow {
   display: grid;
   place-items: center;
   width: 34px;
@@ -478,7 +478,7 @@
   background: #b8f04b;
 }
 
-.mk-fab {
+.intro .mk-fab {
   position: absolute;
   right: 2px;
   bottom: -2px;
@@ -581,7 +581,7 @@
   background: #ffd93b;
 }
 
-.mk-tap {
+.intro .mk-tap {
   position: absolute;
   top: 28px;
   right: 18px;
@@ -790,5 +790,20 @@
 
   .mk-welcome {
     height: 140px;
+  }
+}
+
+/* Looping artwork only animates while the tour is mounted and visible.
+   The .mk-* selectors are scoped to .intro above, so main screens never run them. */
+.intro[data-hidden='true'],
+.intro[data-hidden='true'] * {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro,
+  .intro * {
+    animation: none !important;
+    transition: none !important;
   }
 }

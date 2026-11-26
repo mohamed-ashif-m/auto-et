@@ -2,7 +2,9 @@ import { useRef, useState } from 'react'
 import type { ChangeEvent, ReactNode } from 'react'
 import { Confirm, Field, Icon, Segmented, Sheet, Stepper, Toggle } from '../components/ui'
 import { messageOf, useStore } from '../store/AppStore'
-import { parseTransactionsCsv } from '../lib/csv'
+import { parseTransactionsCsv, parseTransactionsJson } from '../lib/csv'
+import type { ImportRow } from '../lib/csv'
+import { money } from '../lib/format'
 import { ACCENTS, COLOR_LIST } from '../lib/defaults'
 import { EmojiPicker } from '../components/EmojiPicker'
 import type { Category, CornerStyle, ShadowStyle, ThemeMode } from '../lib/types'
@@ -60,12 +62,14 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 
 function Main({ go }: { go: (p: Page) => void }) {
   const {
-    settings, patchSettings, autoTrackOn, openAutoTrackSettings, refreshAutoTrack,
-    rules, exportData, importTransactions ,clearAll, notify, transactions, openIntro,
+    settings, patchSettings, autoTrackOn, openAutoTrackSettings,
+    rules, exportData, importTransactions, clearAll, notify, transactions, openIntro,
   } = useStore()
   const [name, setName] = useState(settings.name)
   const [confirmWipe, setConfirmWipe] = useState(false)
-    const [importing, setImporting] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const [duplicates, setDuplicates] = useState<ImportRow[]>([])
+  const [showDuplicates, setShowDuplicates] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const wipe = async () => {
@@ -77,20 +81,24 @@ function Main({ go }: { go: (p: Page) => void }) {
     }
     setConfirmWipe(false)
   }
-    const onPickFile = async (e: ChangeEvent<HTMLInputElement>) => {
+  const onPickFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = '' // lets the same file be picked again later
     if (!file) return
     setImporting(true)
     try {
-      const parsed = parseTransactionsCsv(await file.text())
+      const text = await file.text()
+      const trimmed = text.trimStart()
+      const isJson = /\.json$/i.test(file.name) || trimmed.startsWith('[') || trimmed.startsWith('{')
+      const parsed = isJson ? parseTransactionsJson(text) : parseTransactionsCsv(text)
       if (parsed.rows.length === 0) {
         notify(parsed.errors[0] ?? 'No transactions found in that file.', 'error')
         return
       }
       const result = await importTransactions(parsed.rows)
+      setDuplicates(result.duplicateRows)
       const extras = [
-        result.duplicates ? `${result.duplicates} already existed` : '',
+        result.duplicates ? `${result.duplicates} already existed (exact match)` : '',
         parsed.skipped ? `${parsed.skipped} unreadable` : '',
         result.failed ? `${result.failed} failed` : '',
       ].filter(Boolean)
@@ -116,8 +124,7 @@ function Main({ go }: { go: (p: Page) => void }) {
     } catch (e) {
       notify(messageOf(e), 'error')
     }
-    // Re-check as soon as the user comes back to the app.
-    window.setTimeout(() => void refreshAutoTrack(), 1500)
+    // Status is re-checked when this screen closes (and on every app resume).
   }
 
   return (
@@ -251,16 +258,25 @@ function Main({ go }: { go: (p: Page) => void }) {
 
       <Group title="Your data" icon="shield">
         <p className="hint">Everything is stored in an encrypted database on this device.</p>
-                <button className="btn white block" onClick={() => fileRef.current?.click()} disabled={importing}>
-          <Icon name="download" size={18} /> {importing ? 'Importing…' : 'Import from CSV'}
+        <button className="btn white block" onClick={() => fileRef.current?.click()} disabled={importing}>
+          <Icon name="download" size={18} /> {importing ? 'Importing…' : 'Import from CSV or JSON'}
         </button>
         <input
           ref={fileRef}
           type="file"
-          accept=".csv,text/csv,text/comma-separated-values,application/csv,application/vnd.ms-excel"
+          accept=".csv,.json,text/csv,text/comma-separated-values,application/csv,application/vnd.ms-excel,application/json"
           style={{ display: 'none' }}
           onChange={(e) => void onPickFile(e)}
         />
+        {duplicates.length > 0 && (
+          <button className="nav-row" onClick={() => setShowDuplicates(true)}>
+            <span className="grow">
+              <strong>Review exact matches</strong>
+              <span className="hint">{duplicates.length} rows from the last import already existed</span>
+            </span>
+            <Icon name="right" size={18} />
+          </button>
+        )}
         <button className="btn white block" onClick={() => void doExport()} disabled={transactions.length === 0}>
           <Icon name="download" size={18} /> Export as CSV
         </button>
@@ -280,6 +296,29 @@ function Main({ go }: { go: (p: Page) => void }) {
           onConfirm={() => void wipe()}
           onCancel={() => setConfirmWipe(false)}
         />
+      )}
+
+      {showDuplicates && (
+        <Sheet title="Exact matches" onClose={() => setShowDuplicates(false)}>
+          <p className="hint">
+            These rows already existed with the same date, amount, type, merchant, category and note, so they were not added again.
+          </p>
+          <div className="card list">
+            {duplicates.slice(0, 30).map((row, i) => (
+              <div className="txn static" key={`${row.transactionTime}-${i}`}>
+                <span className="txn-main">
+                  <span className="txn-title">{row.merchant || row.category || 'Imported'}</span>
+                  <span className="txn-sub">
+                    {new Date(row.transactionTime).toLocaleDateString()} · {row.category}
+                    {row.note ? ` · ${row.note}` : ''}
+                  </span>
+                </span>
+                <strong>{money(row.amountPaise)}</strong>
+              </div>
+            ))}
+          </div>
+          {duplicates.length > 30 && <p className="hint">Showing the first 30 of {duplicates.length}.</p>}
+        </Sheet>
       )}
     </>
   )

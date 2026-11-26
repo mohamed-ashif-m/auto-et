@@ -58,28 +58,30 @@ public class ExpenseNotificationListener extends NotificationListenerService {
                     Pattern.CASE_INSENSITIVE)
     };
 
+    /** Debug-only logging: release builds do no string building per notification. */
+    private static void debug(String message) {
+        if (BuildConfig.DEBUG) android.util.Log.d(TAG, message);
+    }
+
     @Override
     public void onListenerConnected() {
         super.onListenerConnected();
-        Log.d(TAG, "Auto Et notification listener CONNECTED");
+        debug("Auto Et notification listener CONNECTED");
     }
 
     @Override
     public void onListenerDisconnected() {
         super.onListenerDisconnected();
-        Log.d(TAG, "Auto Et notification listener DISCONNECTED");
+        debug("Auto Et notification listener DISCONNECTED");
     }
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        Log.d(TAG, "Notification callback received");
-
+        // Cheapest check first: a non-SMS notification does no further work.
         String packageName = sbn.getPackageName();
-        Log.d(TAG, "Notification package: " + packageName);
+        if (!SMS_PACKAGES.contains(packageName)) return;
 
-        if (!SMS_PACKAGES.contains(packageName)) {
-            return;
-        }
+        debug("SMS notification from " + packageName);
 
         Notification notification = sbn.getNotification();
         Bundle extras = notification.extras;
@@ -110,7 +112,7 @@ public class ExpenseNotificationListener extends NotificationListenerService {
                 || normalized.contains("unsuccessful")
                 || normalized.contains("initiated")) {
 
-            Log.d(TAG, "Incomplete or unsuccessful transaction ignored");
+            debug("Incomplete or unsuccessful transaction ignored");
             return;
         }
 
@@ -119,7 +121,7 @@ public class ExpenseNotificationListener extends NotificationListenerService {
                 && !normalized.contains("debited")
                 && !normalized.contains("credited")) {
 
-            Log.d(TAG, "OTP message ignored");
+            debug("OTP message ignored");
             return;
         }
 
@@ -140,7 +142,7 @@ public class ExpenseNotificationListener extends NotificationListenerService {
 
         // 4. Ignore ambiguous notifications.
         if (isIncome == isExpense) {
-            Log.d(TAG, "Unrecognized or ambiguous transaction ignored");
+            debug("Unrecognized or ambiguous transaction ignored");
             return;
         }
 
@@ -149,7 +151,7 @@ public class ExpenseNotificationListener extends NotificationListenerService {
         Matcher amountMatcher = AMOUNT_PATTERN.matcher(content);
 
         if (!amountMatcher.find()) {
-            Log.d(TAG, "No transaction amount found");
+            debug("No transaction amount found");
             return;
         }
 
@@ -201,10 +203,12 @@ public class ExpenseNotificationListener extends NotificationListenerService {
                             database.transactionDao().insert(transaction);
 
                     if (insertedId == -1) {
-                        Log.d(TAG, "Duplicate notification ignored");
+                        debug("Duplicate notification ignored");
                     } else {
-                        Log.d(TAG, "Transaction saved successfully");
-                        Log.d(TAG, "Transaction ID: " + insertedId);
+                        debug("Transaction saved successfully");
+                        debug("Transaction ID: " + insertedId);
+                        // Push the change to a running WebView; JS never polls.
+                        TransactionPlugin.notifyTransactionsChanged();
                         if ("EXPENSE".equals(detectedType)) {
                             BudgetAlerts.check(getApplicationContext(), database);
                         }

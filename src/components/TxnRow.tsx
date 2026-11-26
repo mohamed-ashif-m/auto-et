@@ -2,6 +2,7 @@ import { useStore } from '../store/AppStore'
 import { shortDateTime } from '../lib/format'
 import type { Transaction } from '../lib/types'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const isAuto = (t: Transaction) => !!t.sourcePackage && t.sourcePackage !== 'manual'
 
 export function TxnRow({ txn, onOpen, showDate = true }: { txn: Transaction; onOpen: (t: Transaction) => void; showDate?: boolean }) {

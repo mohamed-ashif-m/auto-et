@@ -44,7 +44,7 @@ export function CalendarSheet({
   )
   const [viewingDayStats, setViewingDayStats] = useState(false)
 
-  const todayTs = startOfDay(Date.now())
+  const [todayTs] = useState(() => startOfDay(Date.now()))
 
   // Days in selected month & first day index (0 = Sunday, 1 = Monday ...)
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
@@ -99,10 +99,7 @@ export function CalendarSheet({
   const selectedDayEntry = activeDayTs ? dailyData.get(activeDayTs) : null
   const selectedDayTxns = selectedDayEntry?.txns ?? []
   const selectedDayExpenses = selectedDayTxns.filter((t) => t.type === 'EXPENSE')
-  const selectedDayCategories = useMemo(
-    () => byCategory(selectedDayExpenses),
-    [selectedDayExpenses],
-  )
+  const selectedDayCategories = byCategory(selectedDayExpenses)
   const dayExpense = selectedDayEntry?.expense ?? 0
   const dayIncome = selectedDayEntry?.income ?? 0
   const dayNet = dayIncome - dayExpense

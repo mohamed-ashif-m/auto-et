@@ -272,6 +272,13 @@ export function Intro() {
   const [name, setName] = useState(settings.name)
   const touch = useRef<{ x: number; y: number } | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
+  // Pause the tour's looping artwork while the WebView is not visible.
+  const [hidden, setHidden] = useState(() => document.visibilityState !== 'visible')
+  useEffect(() => {
+    const onVisibility = () => setHidden(document.visibilityState !== 'visible')
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
 
   const slide = SLIDES[index]
   const last = index === SLIDES.length - 1
@@ -333,7 +340,15 @@ export function Intro() {
   }
 
   return (
-    <div className="intro" role="dialog" aria-modal="true" aria-label="Welcome tour" tabIndex={-1} ref={rootRef}>
+    <div
+      className="intro"
+      data-hidden={hidden ? 'true' : undefined}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Welcome tour"
+      tabIndex={-1}
+      ref={rootRef}
+    >
       <div className="intro-inner">
         <header className="intro-top">
           <ol className="intro-progress" aria-label={`Step ${index + 1} of ${SLIDES.length}`}>

@@ -1,4 +1,5 @@
 import { registerPlugin } from '@capacitor/core'
+import type { PluginListenerHandle } from '@capacitor/core'
 import type { Transaction, TxnType } from '../lib/types'
 
 export type { Transaction } from '../lib/types'
@@ -43,6 +44,11 @@ export interface TransactionPluginInterface {
   openNotificationAccessSettings(): Promise<void>
 
   exportCsv(options: { csv: string; fileName: string }): Promise<void>
+
+  addListener(
+    eventName: 'transactionsChanged',
+    listenerFunc: () => void,
+  ): Promise<PluginListenerHandle>
 }
 
 // On Android this talks to TransactionPlugin.java (encrypted Room database).
