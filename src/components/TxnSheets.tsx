@@ -34,6 +34,13 @@ export function TxnFormSheet({ initial, onClose }: { initial?: Transaction; onCl
     if (hit) setCategory(hit.category)
   }
 
+  // Picking a category fills an empty description with the category name.
+  const pickCategory = (name: string) => {
+    setCategory(name)
+    setTouched(true)
+    if (!merchant.trim()) setMerchant(name)
+  }
+
   const quickDates = useMemo(() => {
     const d = new Date()
     const yesterday = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1)
@@ -113,10 +120,7 @@ export function TxnFormSheet({ initial, onClose }: { initial?: Transaction; onCl
               key={c.name}
               type="button"
               className={`cat-pick ${category === c.name ? 'on' : ''}`}
-              onClick={() => {
-                setCategory(c.name)
-                setTouched(true)
-              }}
+              onClick={() => pickCategory(c.name)}
             >
               <span className="tile sm" style={{ background: c.color }}>{c.emoji}</span>
               <span>{c.name}</span>

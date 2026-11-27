@@ -3,6 +3,12 @@ apply plugin: 'com.android.application'
 android {
     namespace 'com.autoet.expensetracker'
     compileSdk = rootProject.ext.compileSdkVersion
+
+    // AGP 8+ does not generate BuildConfig unless explicitly enabled.
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         applicationId "com.autoet.expensetracker"
         minSdkVersion rootProject.ext.minSdkVersion
