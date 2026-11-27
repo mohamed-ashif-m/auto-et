@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import type { ReactNode } from 'react'
+import { useBackHandler } from '../lib/backStack'
 
 /* ------------------------------------------------------------------ */
 /* Icons — chunky 2.8px strokes to match the neo-brutalist borders     */
@@ -80,6 +81,7 @@ export function Sheet({
   tone?: string
 }) {
   useEscape(onClose)
+  useBackHandler(true, onClose)
   return (
     <div className="overlay" onClick={onClose}>
       <section
@@ -118,6 +120,7 @@ export function Confirm({
   onCancel: () => void
 }) {
   useEscape(onCancel)
+  useBackHandler(true, onCancel)
   return (
     <div className="overlay center" onClick={onCancel}>
       <section className="dialog card" role="alertdialog" aria-label={title} onClick={(e) => e.stopPropagation()}>

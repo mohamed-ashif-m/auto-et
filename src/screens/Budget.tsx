@@ -52,9 +52,10 @@ export function Budget() {
     return `Due ${when} · in ${diff} ${diff === 1 ? 'day' : 'days'}`
   }
 
-  const budgeted = Object.entries(settings.categoryBudgets).filter(([name]) =>
-    settings.categories.some((c) => c.name === name),
-  )
+  // Follow the saved category order, not the insertion order of the budgets map.
+  const budgeted = settings.categories
+    .filter((c) => Object.prototype.hasOwnProperty.call(settings.categoryBudgets, c.name))
+    .map((c) => [c.name, settings.categoryBudgets[c.name]] as const)
 
   // Savings goal: a share of this month's income.
   const target = Math.round((sum.income * settings.savingsPct) / 100)
@@ -263,7 +264,7 @@ function BudgetSheet({ editing, onClose }: { editing: NonNullable<Editing>; onCl
           ) : (
             <div className="cat-grid">
               {free.map((c) => (
-                <button key={c.name} className={`cat-pick ${category === c.name ? 'on' : ''}`} onClick={() => setCategory(c.name)}>
+                <button key={c.id} className={`cat-pick ${category === c.name ? 'on' : ''}`} onClick={() => setCategory(c.name)}>
                   <span className="tile sm" style={{ background: c.color }}>{c.emoji}</span>
                   <span>{c.name}</span>
                 </button>

@@ -34,8 +34,9 @@ function group(txns: Transaction[], keyOf: (t: Transaction) => string): Slice[] 
   return [...map.values()].sort((a, b) => b.total - a.total)
 }
 
-export const byCategory = (txns: Transaction[]) =>
-  group(txns, (t) => t.category || 'Other')
+/** `fallbackName` is the CURRENT name of the category with id 'other'. */
+export const byCategory = (txns: Transaction[], fallbackName = 'Other') =>
+  group(txns, (t) => t.category || fallbackName)
 
 /** Same merchant, different capitalisation → one row. */
 export const byMerchant = (txns: Transaction[]) =>

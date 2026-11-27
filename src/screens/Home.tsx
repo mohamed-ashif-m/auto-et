@@ -7,6 +7,7 @@ import { CategoryDetailSheet } from '../components/CategoryDetailSheet'
 import { CalendarSheet } from '../components/CalendarSheet'
 import { useStore } from '../store/AppStore'
 import { byCategory, inRange, summarize } from '../lib/analytics'
+import { otherCategoryName } from '../lib/categories'
 import { isCurrent, rangeFor } from '../lib/period'
 import type { Range } from '../lib/period'
 import type { Tab, Transaction } from '../lib/types'
@@ -45,7 +46,10 @@ export function Home({
   const current = isCurrent(range)
   const rows = useMemo(() => inRange(transactions, range), [transactions, range])
   const sum = useMemo(() => summarize(rows), [rows])
-  const top = useMemo(() => byCategory(rows).slice(0, 5), [rows])
+  const top = useMemo(
+    () => byCategory(rows, otherCategoryName(settings.categories)).slice(0, 5),
+    [rows, settings.categories],
+  )
 
   const [now] = useState(() => Date.now())
   const budget = settings.monthlyBudget

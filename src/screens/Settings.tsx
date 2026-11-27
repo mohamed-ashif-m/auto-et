@@ -7,6 +7,9 @@ import type { ImportRow } from '../lib/csv'
 import { money } from '../lib/format'
 import { ACCENTS, COLOR_LIST } from '../lib/defaults'
 import { EmojiPicker } from '../components/EmojiPicker'
+import { CategoryOrderList } from '../components/CategoryOrderList'
+import { useBackHandler } from '../lib/backStack'
+import { newCategoryId, otherCategoryName } from '../lib/categories'
 import type { Category, CornerStyle, ShadowStyle, ThemeMode } from '../lib/types'
 
 type Page = 'main' | 'categories' | 'rules'
@@ -15,13 +18,18 @@ export function Settings({ onClose }: { onClose: () => void }) {
   const [page, setPage] = useState<Page>('main')
   const title = page === 'main' ? 'Settings' : page === 'categories' ? 'Categories' : 'Smart rules'
 
+  // Same action as the header arrow: sub-page first, then close Settings.
+  // The hook keeps this handler in a ref, so page changes never reorder the stack.
+  const back = () => (page === 'main' ? onClose() : setPage('main'))
+  useBackHandler(true, back)
+
   return (
     <div className="page-overlay">
       <div className="page">
         <header className="top">
           <button
             className="icon-btn white"
-            onClick={() => (page === 'main' ? onClose() : setPage('main'))}
+            onClick={back}
             aria-label={page === 'main' ? 'Close settings' : 'Back to settings'}
           >
             <Icon name="left" />
@@ -327,7 +335,7 @@ function Main({ go }: { go: (p: Page) => void }) {
 /* ------------------------------------------------------------------ */
 
 function Categories() {
-  const { settings } = useStore()
+  const { settings, patchSettings } = useStore()
   const [editing, setEditing] = useState<Category | 'new' | null>(null)
 
   return (
@@ -336,18 +344,12 @@ function Categories() {
         <Icon name="plus" size={18} /> New category
       </button>
 
-      <div className="card list">
-        {settings.categories.map((c) => (
-          <button key={c.name} className="txn" onClick={() => setEditing(c)}>
-            <span className="tile" style={{ background: c.color }}>{c.emoji}</span>
-            <span className="txn-main">
-              <span className="txn-title">{c.name}</span>
-              <span className="txn-sub">{c.builtin ? 'Predefined' : 'Custom'}</span>
-            </span>
-            <Icon name="edit" size={18} />
-          </button>
-        ))}
-      </div>
+      <p className="hint">Drag ≡ to reorder, or use the arrow buttons. Order is saved straight away.</p>
+      <CategoryOrderList
+        categories={settings.categories}
+        onEdit={setEditing}
+        onReorder={(categories) => patchSettings({ categories })}
+      />
 
       {editing && <CategorySheet category={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
     </>
@@ -355,7 +357,8 @@ function Categories() {
 }
 
 function CategorySheet({ category, onClose }: { category?: Category; onClose: () => void }) {
-  const { saveCategory, deleteCategory, notify } = useStore()
+  const { settings, saveCategory, deleteCategory, notify } = useStore()
+  const fallback = otherCategoryName(settings.categories)
   const [name, setName] = useState(category?.name ?? '')
   const [emoji, setEmoji] = useState(category?.emoji ?? '🏷️')
   const [color, setColor] = useState(category?.color ?? COLOR_LIST[0])
@@ -364,8 +367,23 @@ function CategorySheet({ category, onClose }: { category?: Category; onClose: ()
 
   const save = async () => {
     try {
-      await saveCategory({ name, emoji, color, builtin: category?.builtin }, category?.name)
+      const next: Category = category
+        ? { ...category, name, emoji, color }
+        : { id: newCategoryId(name), name, emoji, color }
+      await saveCategory(next, category?.name)
       notify('Category saved')
+      onClose()
+    } catch (e) {
+      setError(messageOf(e))
+    }
+  }
+
+  const resetName = async () => {
+    if (!category?.defaultName) return
+    try {
+      await saveCategory({ ...category, name: category.defaultName }, category.name)
+      setName(category.defaultName)
+      notify('Original name restored')
       onClose()
     } catch (e) {
       setError(messageOf(e))
@@ -375,7 +393,7 @@ function CategorySheet({ category, onClose }: { category?: Category; onClose: ()
   const remove = async () => {
     try {
       await deleteCategory(category!.name)
-      notify('Category deleted — its transactions moved to Other')
+      notify(`Category deleted — its transactions moved to ${fallback}`)
       onClose()
     } catch (e) {
       setError(messageOf(e))
@@ -391,12 +409,11 @@ function CategorySheet({ category, onClose }: { category?: Category; onClose: ()
           <strong>{name.trim() || 'Category name'}</strong>
         </div>
 
-        <Field label="Name" hint={category?.builtin ? 'Predefined categories keep their name.' : undefined}>
+        <Field label="Name">
           <input
             type="text"
             value={name}
             maxLength={40}
-            disabled={category?.builtin}
             placeholder="e.g. Pets"
             onChange={(e) => setName(e.target.value)}
           />
@@ -424,10 +441,15 @@ function CategorySheet({ category, onClose }: { category?: Category; onClose: ()
 
         {error && <p className="form-error" role="alert">{error}</p>}
 
-        <div className="row gap">
+        <div className="row gap wrap">
           {category && !category.builtin && (
             <button className="btn coral grow" onClick={() => setConfirming(true)}>
               <Icon name="trash" size={18} /> Delete
+            </button>
+          )}
+          {category?.builtin && category.defaultName && category.name !== category.defaultName && (
+            <button className="btn white grow" onClick={() => void resetName()}>
+              <Icon name="refresh" size={18} /> Reset name
             </button>
           )}
           <button className="btn grow" onClick={() => void save()}>Save</button>
@@ -437,7 +459,7 @@ function CategorySheet({ category, onClose }: { category?: Category; onClose: ()
       {confirming && category && (
         <Confirm
           title={`Delete “${category.name}”?`}
-          body="Its transactions will move to Other. Its budget and smart rules are removed."
+          body={`Its transactions will move to ${fallback}. Its budget and smart rules are removed.`}
           confirmLabel="Delete"
           danger
           onConfirm={() => void remove()}
@@ -453,7 +475,9 @@ function CategorySheet({ category, onClose }: { category?: Category; onClose: ()
 function Rules() {
   const { rules, saveRules, settings, catOf } = useStore()
   const [keyword, setKeyword] = useState('')
-  const [category, setCategory] = useState(settings.categories[0]?.name ?? 'Other')
+  const [category, setCategory] = useState(
+    settings.categories[0]?.name ?? otherCategoryName(settings.categories),
+  )
   const [error, setError] = useState('')
 
   const add = () => {
@@ -482,7 +506,7 @@ function Rules() {
         <Field label="Put it in">
           <select value={category} onChange={(e) => setCategory(e.target.value)}>
             {settings.categories.map((c) => (
-              <option key={c.name} value={c.name}>{c.emoji} {c.name}</option>
+              <option key={c.id} value={c.name}>{c.emoji} {c.name}</option>
             ))}
           </select>
         </Field>

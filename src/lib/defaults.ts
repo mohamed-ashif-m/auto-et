@@ -29,27 +29,31 @@ export const ACCENTS: Record<string, { label: string; color: string }> = {
   pink: { label: 'Pink', color: COLORS.pink },
 }
 
-// Names of the first nine match the ones the Android layer already knew about,
-// so every existing transaction keeps its category.
+// IDs are stable across renames and are also understood by the Android SMS
+// categoriser. `defaultName` is the name legacy transactions, rules and
+// imports used; it is never rewritten by a rename.
 export const DEFAULT_CATEGORIES: Category[] = [
-  { name: 'Online Payment', emoji: '💳', color: COLORS.blue, builtin: true },
-  { name: 'Cash', emoji: '💵', color: COLORS.peach, builtin: true },
-  { name: 'Food & Dining', emoji: '🍔', color: COLORS.orange, builtin: true },
-  { name: 'Groceries', emoji: '🛒', color: COLORS.green, builtin: true },
-  { name: 'Transport', emoji: '🚌', color: COLORS.yellow, builtin: true },
-  { name: 'Shopping', emoji: '🛍️', color: COLORS.pink, builtin: true },
-  { name: 'Bills & Utilities', emoji: '💡', color: COLORS.violet, builtin: true },
-  { name: 'Healthcare', emoji: '💊', color: COLORS.coral, builtin: true },
-  { name: 'Entertainment', emoji: '🎬', color: COLORS.teal, builtin: true },
-  { name: 'Education', emoji: '🎓', color: COLORS.sky, builtin: true },
-  { name: 'Salary', emoji: '💼', color: COLORS.lime, builtin: true },
-  { name: 'Other', emoji: '📦', color: COLORS.stone, builtin: true },
+  { id: 'online-payment', name: 'Online Payment', defaultName: 'Online Payment', emoji: '💳', color: COLORS.blue, builtin: true },
+  { id: 'cash', name: 'Cash', defaultName: 'Cash', emoji: '💵', color: COLORS.peach, builtin: true },
+  { id: 'food', name: 'Food & Dining', defaultName: 'Food & Dining', emoji: '🍔', color: COLORS.orange, builtin: true },
+  { id: 'groceries', name: 'Groceries', defaultName: 'Groceries', emoji: '🛒', color: COLORS.green, builtin: true },
+  { id: 'transport', name: 'Transport', defaultName: 'Transport', emoji: '🚌', color: COLORS.yellow, builtin: true },
+  { id: 'shopping', name: 'Shopping', defaultName: 'Shopping', emoji: '🛍️', color: COLORS.pink, builtin: true },
+  { id: 'bills', name: 'Bills & Utilities', defaultName: 'Bills & Utilities', emoji: '💡', color: COLORS.violet, builtin: true },
+  { id: 'healthcare', name: 'Healthcare', defaultName: 'Healthcare', emoji: '💊', color: COLORS.coral, builtin: true },
+  { id: 'entertainment', name: 'Entertainment', defaultName: 'Entertainment', emoji: '🎬', color: COLORS.teal, builtin: true },
+  { id: 'education', name: 'Education', defaultName: 'Education', emoji: '🎓', color: COLORS.sky, builtin: true },
+  { id: 'salary', name: 'Salary', defaultName: 'Salary', emoji: '💼', color: COLORS.lime, builtin: true },
+  { id: 'other', name: 'Other', defaultName: 'Other', emoji: '📦', color: COLORS.stone, builtin: true },
 ]
 
 export const FALLBACK_CATEGORY: Category = {
+  id: 'other',
   name: 'Other',
+  defaultName: 'Other',
   emoji: '📦',
   color: COLORS.stone,
+  builtin: true,
 }
 
 export const EMOJI_CHOICES = [

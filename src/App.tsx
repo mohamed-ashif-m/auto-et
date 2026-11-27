@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Capacitor } from '@capacitor/core'
+import { App as CapacitorApp } from '@capacitor/app'
+import { handleBack, useBackHandler } from './lib/backStack'
 import { Icon } from './components/ui'
 import { Intro } from './components/Intro'
 import { TxnDetailSheet, TxnFormSheet } from './components/TxnSheets'
@@ -29,10 +32,46 @@ type Sheet =
   | null
 
 function Shell() {
-  const { transactions, introOpen, refreshAutoTrack } = useStore()
+  const { transactions, introOpen, refreshAutoTrack, notify } = useStore()
   const [tab, setTab] = useState<Tab>('home')
   const [sheet, setSheet] = useState<Sheet>(null)
   const [showSettings, setShowSettings] = useState(false)
+  const lastBackRef = useRef(0)
+
+  // Any layer above the tabs registers its own handler. Once those are closed,
+  // a non-Home tab goes Home before the exit confirmation is allowed.
+  useBackHandler(tab !== 'home', () => setTab('home'))
+
+  // The only native back listener. In the browser (or without the plugin)
+  // nothing is registered, so the JS layer stack is simply unused.
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable('App')) return undefined
+    let handle: { remove: () => void } | undefined
+    let cancelled = false
+    const onBack = () => {
+      if (handleBack()) {
+        lastBackRef.current = 0
+        return
+      }
+      const now = Date.now()
+      if (now - lastBackRef.current < 2000) {
+        void CapacitorApp.exitApp().catch(() => {})
+      } else {
+        lastBackRef.current = now
+        notify('Press back again to exit')
+      }
+    }
+    void CapacitorApp.addListener('backButton', onBack)
+      .then((registered) => {
+        if (cancelled) registered.remove()
+        else handle = registered
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+      handle?.remove()
+    }
+  }, [notify])
 
   // Resolve the open transaction from live data so edits/deletes stay in sync.
   const detail = sheet?.kind === 'detail' ? transactions.find((t) => t.id === sheet.id) : undefined

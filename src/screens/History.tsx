@@ -89,7 +89,7 @@ export function History({ onOpen }: { onOpen: (t: Transaction) => void }) {
           <button className={`chip ${category === '' ? 'on' : ''}`} onClick={() => setCategory('')}>All categories</button>
           {usedCategories.map((c) => (
             <button
-              key={c.name}
+              key={c.id}
               className={`chip ${category === c.name ? 'on' : ''}`}
               onClick={() => { setCategory(category === c.name ? '' : c.name); setLimit(PAGE) }}
             >

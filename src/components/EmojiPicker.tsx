@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { WHATSAPP_EMOJI_GROUPS } from '../lib/emojis'
+import { useBackHandler } from '../lib/backStack'
 import { Icon } from './ui'
 
 export function EmojiPicker({
@@ -12,6 +13,13 @@ export function EmojiPicker({
   const [activeGroup, setActiveGroup] = useState<string>('smileys')
   const [search, setSearch] = useState('')
   const [customInput, setCustomInput] = useState('')
+
+  // Back clears the picker's transient search state before the parent sheet
+  // is allowed to close (no separate popover layer is added).
+  useBackHandler(Boolean(search || customInput), () => {
+    setSearch('')
+    setCustomInput('')
+  })
 
   const filteredEmojis = useMemo(() => {
     const q = search.trim().toLowerCase()

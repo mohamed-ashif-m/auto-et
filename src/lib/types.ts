@@ -13,10 +13,14 @@ export interface Transaction {
 }
 
 export interface Category {
+  /** Stable identity. Never changes, even when `name` is renamed. */
+  id: string
   name: string
   emoji: string
   color: string
   builtin?: boolean
+  /** Original name of a predefined category; used to map legacy imports/rules. */
+  defaultName?: string
 }
 
 export interface Rule {

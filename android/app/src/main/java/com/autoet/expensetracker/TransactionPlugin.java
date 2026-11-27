@@ -388,7 +388,7 @@ public class TransactionPlugin extends Plugin {
     }
 
     // Moves every transaction from one category to another
-    // (used when a custom category is deleted).
+    // (used when a custom category is deleted or any category is renamed).
     @PluginMethod
     public void reassignCategory(PluginCall call) {
 

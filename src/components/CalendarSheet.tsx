@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { Empty, Icon, Sheet } from './ui'
 import { useStore } from '../store/AppStore'
 import { byCategory } from '../lib/analytics'
+import { otherCategoryName } from '../lib/categories'
+import { useBackHandler } from '../lib/backStack'
 import { dayRange, rangeFor } from '../lib/period'
 import { shortDateTime, startOfDay } from '../lib/format'
 import type { Range } from '../lib/period'
@@ -43,6 +45,10 @@ export function CalendarSheet({
     currentRange?.kind === 'day' ? startOfDay(currentRange.start) : null,
   )
   const [viewingDayStats, setViewingDayStats] = useState(false)
+
+  // Day stats is a nested view: back returns to the month grid before the
+  // sheet's own handler (registered by <Sheet>) is allowed to close it.
+  useBackHandler(viewingDayStats, () => setViewingDayStats(false))
 
   const [todayTs] = useState(() => startOfDay(Date.now()))
 
@@ -99,7 +105,10 @@ export function CalendarSheet({
   const selectedDayEntry = activeDayTs ? dailyData.get(activeDayTs) : null
   const selectedDayTxns = selectedDayEntry?.txns ?? []
   const selectedDayExpenses = selectedDayTxns.filter((t) => t.type === 'EXPENSE')
-  const selectedDayCategories = byCategory(selectedDayExpenses)
+  const selectedDayCategories = byCategory(
+    selectedDayExpenses,
+    otherCategoryName(settings.categories),
+  )
   const dayExpense = selectedDayEntry?.expense ?? 0
   const dayIncome = selectedDayEntry?.income ?? 0
   const dayNet = dayIncome - dayExpense

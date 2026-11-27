@@ -9,6 +9,7 @@ import { useStore } from '../store/AppStore'
 import {
   biggestExpenses, bucketize, byCategory, byMerchant, inRange, priciestDay, summarize,
 } from '../lib/analytics'
+import { otherCategoryName } from '../lib/categories'
 import { shortDate } from '../lib/format'
 import { bucketsFor, elapsedDays, isCurrent, previousRange, rangeFor } from '../lib/period'
 import type { PeriodKind, Range } from '../lib/period'
@@ -35,7 +36,10 @@ export function Stats({ onOpen }: { onOpen: (t: Transaction) => void }) {
   const prev = useMemo(() => previousRange(range, settings.startDay), [range, settings.startDay])
   const prevSum = useMemo(() => (prev ? summarize(inRange(transactions, prev)) : null), [prev, transactions])
 
-  const cats = useMemo(() => byCategory(rows), [rows])
+  const cats = useMemo(
+    () => byCategory(rows, otherCategoryName(settings.categories)),
+    [rows, settings.categories],
+  )
   const merchants = useMemo(() => byMerchant(rows).slice(0, 6), [rows])
   const biggest = useMemo(() => biggestExpenses(rows, 5), [rows])
   const day = useMemo(() => priciestDay(rows), [rows])

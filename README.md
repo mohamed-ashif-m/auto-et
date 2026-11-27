@@ -303,7 +303,8 @@ npx cap open android   # open Android Studio, then Run
 ```
 
 `npx cap sync android` must be re-run after every production build so the WebView receives
-the latest `dist/` bundle.
+the latest `dist/` bundle. It also syncs `@capacitor/app`, which drives Android back
+navigation (top-most sheet/dialog first, tabs before a double-press exit).
 
 ### Enable SMS auto-tracking
 

@@ -189,11 +189,13 @@ public class ExpenseNotificationListener extends NotificationListenerService {
                     transaction.currency = "INR";
                     transaction.merchant = finalMerchant;
                     transaction.type = detectedType;
+                    // Stable id: CategoryRules resolves it against the user's
+                    // current category names (renames included).
                     transaction.category = CategoryRules.categorize(
                             database,
                             finalMerchant,
                             content,
-                            "Online Payment"
+                            CategoryRules.FALLBACK_ID
                     );
                     transaction.sourcePackage = packageName;
                     transaction.transactionTime = transactionTime;

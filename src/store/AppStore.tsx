@@ -13,7 +13,11 @@ import type { ReactNode } from 'react'
 import type { PluginListenerHandle } from '@capacitor/core'
 import TransactionPlugin from '../plugins/transactionPlugin'
 import type { TransactionInput } from '../plugins/transactionPlugin'
-import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS, ACCENTS, FALLBACK_CATEGORY, COLOR_LIST } from '../lib/defaults'
+import { DEFAULT_SETTINGS, ACCENTS, COLOR_LIST } from '../lib/defaults'
+import {
+  categoryNameError, fallbackCategory, newCategoryId, normaliseCategories,
+  otherCategoryName, planRename, resolveImportedCategoryName,
+} from '../lib/categories'
 import { money, moneyShort } from '../lib/format'
 import { toCsv } from '../lib/analytics'
 import type { ImportRow } from '../lib/csv'
@@ -96,11 +100,9 @@ export function ToastHost() {
 
 function mergeSettings(saved: Partial<Settings> | null): Settings {
   const merged: Settings = { ...DEFAULT_SETTINGS, ...(saved ?? {}) }
-  // Make sure every predefined category still exists, even if added in a later release.
-  const byName = new Map((saved?.categories ?? []).map((c) => [c.name, c]))
-  const builtins = DEFAULT_CATEGORIES.map((c) => ({ ...c, ...(byName.get(c.name) ?? {}), builtin: true }))
-  const customs = (saved?.categories ?? []).filter((c) => !c.builtin)
-  merged.categories = [...builtins, ...customs]
+  // Identity-based migration: a renamed predefined keeps its id and its place
+  // in the saved list; only genuinely missing predefineds are appended.
+  merged.categories = normaliseCategories(saved?.categories ?? DEFAULT_SETTINGS.categories)
   if (!ACCENTS[merged.accent]) merged.accent = 'sun'
   return merged
 }
@@ -322,13 +324,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   )
 
   /* ---------- settings ---------- */
-  const persistSettings = useCallback((next: Settings) => {
+  /** Awaiting version used by the atomic rename flow. */
+  const writeSettings = useCallback((next: Settings) => {
     localStorage.setItem(CACHE_KEY, JSON.stringify(next))
-    TransactionPlugin.setValue({ key: 'settings', value: JSON.stringify(next) })
+    return TransactionPlugin.setValue({ key: 'settings', value: JSON.stringify(next) })
       // Budget/cycle/alert changes may cross the 10% line, so re-check natively.
       .then(() => TransactionPlugin.checkBudgetAlert())
-      .catch((e) => console.error('Saving settings failed:', e))
   }, [])
+
+  const persistSettings = useCallback(
+    (next: Settings) => {
+      void writeSettings(next).catch((e) => console.error('Saving settings failed:', e))
+    },
+    [writeSettings],
+  )
 
   const patchSettings = useCallback(
     (patch: Partial<Settings>) => {
@@ -341,14 +350,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [persistSettings],
   )
 
-  const saveRules = useCallback((next: Rule[]) => {
-    setRules(next)
+  /** Awaiting version used by the atomic rename flow. */
+  const writeRules = useCallback((next: Rule[]) => {
     localStorage.setItem(RULES_CACHE_KEY, JSON.stringify(next))
     // The Java notification listener reads this key to auto-categorise SMS payments.
-    TransactionPlugin.setValue({ key: 'rules', value: JSON.stringify(next) }).catch((e) =>
-      console.error('Saving rules failed:', e),
-    )
+    return TransactionPlugin.setValue({ key: 'rules', value: JSON.stringify(next) })
   }, [])
+
+  const saveRules = useCallback(
+    (next: Rule[]) => {
+      setRules(next)
+      void writeRules(next).catch((e) => console.error('Saving rules failed:', e))
+    },
+    [writeRules],
+  )
 
   const saveLoans = useCallback((next: Loan[]) => {
     setLoans(next)
@@ -361,36 +376,50 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const saveCategory = useCallback(
     async (category: Category, originalName?: string) => {
       const name = category.name.trim()
-      if (!name) throw new Error('Give the category a name.')
-      if (name.length > 40) throw new Error('Keep the name under 40 characters.')
-      const clash = settings.categories.some(
-        (c) => c.name.toLowerCase() === name.toLowerCase() && c.name !== originalName,
-      )
-      if (clash) throw new Error('A category with that name already exists.')
+      const invalid = categoryNameError(name, settings.categories, category.id)
+      if (invalid) throw new Error(invalid)
 
-      const renamed = originalName && originalName !== name
-      if (renamed) {
-        const original = settings.categories.find((c) => c.name === originalName)
-        if (original?.builtin) throw new Error('Predefined categories keep their name.')
-        await TransactionPlugin.reassignCategory({ from: originalName, to: name })
-        saveRules(rules.map((r) => (r.category === originalName ? { ...r, category: name } : r)))
+      // Identity first: the sheet supplies the stable id, with the old name as
+      // a fallback for callers that only know the name.
+      const current =
+        settings.categories.find((c) => c.id === category.id) ??
+        settings.categories.find((c) => c.name === originalName)
+
+      if (!current || current.name === name) {
+        const clean: Category = current
+          ? { ...current, ...category, name, id: current.id, defaultName: current.defaultName }
+          : { ...category, id: category.id || newCategoryId(name), name }
+        const categories = current
+          ? settings.categories.map((c) => (c.id === current.id ? clean : c))
+          : [...settings.categories, clean] // new customs are appended at the end
+        patchSettings({ categories })
+        return
+      }
+
+      // Rename (predefined categories included): all native writes are awaited
+      // before React state is committed. A failure rolls the DB and both kv
+      // keys back, so the user never sees half-renamed data.
+      const plan = planRename(settings.categories, rules, settings.categoryBudgets, current.id, name)
+      try {
+        await TransactionPlugin.reassignCategory({ from: current.name, to: name })
+        await writeSettings({ ...settings, ...plan })
+        await writeRules(plan.rules)
         await refresh(true)
+        setSettings((prev) => ({ ...prev, ...plan }))
+        setRules(plan.rules)
+      } catch (err) {
+        try {
+          await TransactionPlugin.reassignCategory({ from: name, to: current.name })
+          await writeSettings(settings)
+          await writeRules(rules)
+          await refresh(true)
+        } catch (rollbackErr) {
+          console.error('Category rename rollback failed:', rollbackErr)
+        }
+        throw err
       }
-
-      const clean: Category = { ...category, name }
-      const exists = settings.categories.some((c) => c.name === (originalName ?? name))
-      const categories = exists
-        ? settings.categories.map((c) => (c.name === (originalName ?? name) ? { ...c, ...clean } : c))
-        : [...settings.categories, clean]
-
-      const budgets = { ...settings.categoryBudgets }
-      if (renamed && originalName in budgets) {
-        budgets[name] = budgets[originalName]
-        delete budgets[originalName]
-      }
-      patchSettings({ categories, categoryBudgets: budgets })
     },
-    [settings.categories, settings.categoryBudgets, rules, saveRules, patchSettings, refresh],
+    [settings, rules, patchSettings, writeSettings, writeRules, refresh],
   )
 
   const deleteCategory = useCallback(
@@ -398,15 +427,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const target = settings.categories.find((c) => c.name === name)
       if (!target) return
       if (target.builtin) throw new Error('Predefined categories cannot be deleted.')
-      await TransactionPlugin.reassignCategory({ from: name, to: 'Other' })
+      // The fallback follows the id of "Other", even if it was renamed.
+      await TransactionPlugin.reassignCategory({ from: name, to: otherCategoryName(settings.categories) })
       saveRules(rules.filter((r) => r.category !== name))
       const budgets = { ...settings.categoryBudgets }
       delete budgets[name]
       patchSettings({
-        categories: settings.categories.filter((c) => c.name !== name),
+        categories: settings.categories.filter((c) => c.id !== target.id),
         categoryBudgets: budgets,
       })
       await refresh(true)
+      void TransactionPlugin.checkBudgetAlert().catch(() => {})
     },
     [settings.categories, settings.categoryBudgets, rules, saveRules, patchSettings, refresh],
   )
@@ -429,14 +460,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     async (rows: ImportRow[]) => {
       const { accepted, duplicates } = dedupeRows(transactions, rows)
 
-      // Match categories case-insensitively; anything new becomes a custom category.
+      // Match today's names first, then ORIGINAL names of renamed predefined
+      // categories; only genuinely new names become custom categories.
       const categories = [...settings.categories]
+      const fallback = otherCategoryName(settings.categories)
       const resolve = (raw: string): string => {
-        const name = raw.trim().slice(0, 40)
-        if (!name) return 'Other'
-        const hit = categories.find((c) => c.name.toLowerCase() === name.toLowerCase())
-        if (hit) return hit.name
-        categories.push({ name, emoji: '🏷️', color: COLOR_LIST[categories.length % COLOR_LIST.length] })
+        const mapped = resolveImportedCategoryName(raw, settings.categories)
+        if (mapped) return mapped
+        const name = raw.trim().slice(0, 40) || fallback
+        categories.push({
+          id: newCategoryId(name),
+          name,
+          emoji: '🏷️',
+          color: COLOR_LIST[categories.length % COLOR_LIST.length],
+        })
         return name
       }
 
@@ -473,8 +510,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [settings.categories],
   )
   const catOf = useCallback(
-    (name: string) => catMap.get(name) ?? { ...FALLBACK_CATEGORY, name: name || 'Other' },
-    [catMap],
+    (name: string) => {
+      const hit = catMap.get(name)
+      if (hit) return hit
+      const base = fallbackCategory(settings.categories)
+      return name ? { ...base, name } : base
+    },
+    [catMap, settings.categories],
   )
   const fmt = useCallback((p: number) => money(p, settings.hideAmounts), [settings.hideAmounts])
   const fmtShort = useCallback(

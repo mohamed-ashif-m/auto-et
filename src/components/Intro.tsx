@@ -3,6 +3,7 @@ import type { ReactNode, TouchEvent } from 'react'
 import { Icon } from './ui'
 import { useStore } from '../store/AppStore'
 import { ACCENTS } from '../lib/defaults'
+import { useBackHandler } from '../lib/backStack'
 import type { ThemeMode } from '../lib/types'
 
 /* ------------------------------------------------------------------ */
@@ -299,6 +300,13 @@ export function Intro() {
     setDir(to > index ? 'fwd' : 'back')
     setIndex(to)
   }
+
+  // Android back steps through the tour. On step 1 it behaves like Skip,
+  // so finishIntro() still persists introDone.
+  useBackHandler(true, () => {
+    if (index > 0) go(index - 1)
+    else finish()
+  })
 
   // Keyboard: arrows to move, Escape to skip. Latest handler kept in a ref.
   const keyRef = useRef<(e: KeyboardEvent) => void>(() => {})

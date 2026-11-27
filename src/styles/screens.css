@@ -639,6 +639,98 @@ circle.donut-line {
   font-size: 13px;
 }
 
+/* ---------- category reordering ---------- */
+.cat-order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.cat-row .cat-edit {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.cat-row + .cat-row .cat-edit {
+  border-top: 2px dashed color-mix(in srgb, var(--line) 35%, transparent);
+}
+
+.drag-handle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 44px;
+  padding: 0;
+  background: var(--surface);
+  color: var(--text);
+  border: 2.5px solid var(--line);
+  border-radius: var(--r-s);
+  font-family: var(--display);
+  font-size: 20px;
+  line-height: 1;
+  cursor: grab;
+  /* Only the handle opts out of scrolling; the rest of the page still scrolls. */
+  touch-action: none;
+}
+
+.drag-handle:active,
+.drag-handle.static {
+  cursor: grabbing;
+}
+
+.drag-handle:focus-visible {
+  outline: 3px dashed var(--text);
+  outline-offset: 2px;
+}
+
+.cat-move {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cat-move .icon-btn.sm {
+  width: 28px;
+  height: 20px;
+  box-shadow: none;
+}
+
+.cat-move .icon-btn:disabled {
+  opacity: 0.32;
+}
+
+.drag-placeholder {
+  flex: none;
+  width: 100%;
+  background: color-mix(in srgb, var(--accent) 22%, var(--paper));
+  border: 2.5px dashed var(--line);
+  border-radius: var(--r-s);
+}
+
+.cat-ghost {
+  position: fixed;
+  z-index: 80;
+  pointer-events: none;
+  padding: 0 8px;
+  background: var(--surface);
+  color: var(--text);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--r-s);
+  box-shadow: 8px 8px 0 #111;
+  opacity: 0.96;
+}
+
 /* ---------- transaction detail ---------- */
 .detail-hero {
   display: flex;

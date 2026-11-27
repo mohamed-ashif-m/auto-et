@@ -3,6 +3,7 @@ import { Confirm, Field, Icon, Sheet } from './ui'
 import { isAuto } from './TxnRow'
 import { messageOf, useStore } from '../store/AppStore'
 import { fromDateInput, shortDateTime, toDateInput } from '../lib/format'
+import { otherCategoryName } from '../lib/categories'
 import type { Transaction, TxnType } from '../lib/types'
 
 /* ------------------------------------------------------------------ */
@@ -15,7 +16,9 @@ export function TxnFormSheet({ initial, onClose }: { initial?: Transaction; onCl
   const [type, setType] = useState<TxnType>(initial?.type ?? 'EXPENSE')
   const [amount, setAmount] = useState(initial ? String(initial.amountPaise / 100) : '')
   const [merchant, setMerchant] = useState(initial?.merchant ?? '')
-  const [category, setCategory] = useState(initial?.category ?? 'Other')
+  const [category, setCategory] = useState(
+    initial?.category ?? otherCategoryName(settings.categories),
+  )
   const [touched, setTouched] = useState(!!initial)
   const [note, setNote] = useState(initial?.note ?? '')
   const [now] = useState(() => Date.now())
@@ -117,7 +120,7 @@ export function TxnFormSheet({ initial, onClose }: { initial?: Transaction; onCl
         <div className="cat-grid">
           {settings.categories.map((c) => (
             <button
-              key={c.name}
+              key={c.id}
               type="button"
               className={`cat-pick ${category === c.name ? 'on' : ''}`}
               onClick={() => pickCategory(c.name)}
